@@ -143,7 +143,7 @@ export default function ContactPage() {
   </div>
 
   {/* Soft overlay for readability */}
-  <div className="absolute inset-0 bg-[#E8EFDF]/80" />
+  <div className="absolute inset-0 bg-[#E8EFDF]/40" />
 
   {/* Content */}
   <div className="relative z-10 px-6 lg:px-16 py-24 text-center">

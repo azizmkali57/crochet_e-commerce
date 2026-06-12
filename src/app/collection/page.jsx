@@ -24,7 +24,7 @@ import {
   BsGrid,
 } from "react-icons/bs";
 
-import { FaComments, FaLaptopCode, FaRocket} from "react-icons/fa";
+import { FaComments, FaLaptopCode, FaRocket } from "react-icons/fa";
 
 const processSteps = [
   {
@@ -43,7 +43,13 @@ const processSteps = [
     sub: "To You",
   },
 ];
-import { PiFlowerLotus, PiHandHeartBold, PiPlantBold, PiSealCheckBold, PiTruckBold } from "react-icons/pi";
+import {
+  PiFlowerLotus,
+  PiHandHeartBold,
+  PiPlantBold,
+  PiSealCheckBold,
+  PiTruckBold,
+} from "react-icons/pi";
 import { GiWool, GiLeafSwirl } from "react-icons/gi";
 import { MdOutlineEco } from "react-icons/md";
 import { RiCustomerService2Line } from "react-icons/ri";
@@ -664,114 +670,196 @@ export default function CrochetAllifyCollections() {
       </section>
 
       {/* COLLECTION GRID */}
-     <section className="max-w-7xl mx-auto px-4 mt-8">
-  <div className="flex items-center justify-between mb-5">
-    <div>
-      <h2
-        className="text-2xl font-bold text-gray-800 flex items-center gap-2"
-        style={{ fontFamily: "Georgia, serif" }}
-      >
-        Our Collection <FiHeart className="text-rose-400 text-xl" />
-      </h2>
-      <p className="text-sm text-gray-500 mt-0.5">
-        Handpicked crochet creations for you
-      </p>
-    </div>
+      <section className="max-w-7xl mx-auto px-4 mt-8">
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h2
+              className="text-2xl font-bold text-gray-800 flex items-center gap-2"
+              style={{ fontFamily: "Georgia, serif" }}
+            >
+              Our Collection <FiHeart className="text-rose-400 text-xl" />
+            </h2>
+            <p className="text-sm text-gray-500 mt-0.5">
+              Handpicked crochet creations for you
+            </p>
+          </div>
 
-    <div className="flex items-center gap-2 text-sm text-gray-600">
-      <span>Sort by:</span>
-      <button
-        className="flex items-center gap-1.5 border border-gray-200 rounded-lg px-3 py-1.5 bg-white hover:border-[#4a6741] transition-colors font-medium"
-        onClick={() =>
-          setSortBy(sortBy === "Featured" ? "Price" : "Featured")
-        }
-      >
-        {sortBy}
-        <FiChevronDown className="text-gray-400" />
-      </button>
-    </div>
-  </div>
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <span>Sort by:</span>
+            <button
+              className="flex items-center gap-1.5 border border-gray-200 rounded-lg px-3 py-1.5 bg-white hover:border-[#4a6741] transition-colors font-medium"
+              onClick={() =>
+                setSortBy(sortBy === "Featured" ? "Price" : "Featured")
+              }
+            >
+              {sortBy}
+              <FiChevronDown className="text-gray-400" />
+            </button>
+          </div>
+        </div>
 
-  {/* Responsive Scroll Wrapper */}
-  <div className="overflow-x-auto pb-4">
-    <div
-      className="grid gap-4 min-w-[1150px] lg:min-w-0"
-      style={{
-        gridTemplateColumns: "1fr 1.4fr 1fr 1fr",
-        gridTemplateRows: "280px 180px 220px",
-      }}
-    >
-      {/* Pearl Crochet Pouch */}
-      <div style={{ gridColumn: "1", gridRow: "1/3" }}>
-        <TallProductCard
-          product={PRODUCTS[0]}
-          wishlist={wishlist}
-          toggleWishlist={toggleWishlist}
-        />
-      </div>
+        {/* DESKTOP GRID (lg and above) — unchanged, just hidden on smaller screens */}
+        <div className="overflow-x-auto pb-4 hidden lg:block">
+          <div
+            className="grid gap-4 min-w-0"
+            style={{
+              gridTemplateColumns: "1fr 1.4fr 1fr 1fr",
+              gridTemplateRows: "280px 180px 220px",
+            }}
+          >
+            {/* Pearl Crochet Pouch */}
+            <div style={{ gridColumn: "1", gridRow: "1/3" }}>
+              <TallProductCard
+                product={PRODUCTS[0]}
+                wishlist={wishlist}
+                toggleWishlist={toggleWishlist}
+              />
+            </div>
 
-      {/* Elegant Crochet Handbag */}
-      <div style={{ gridColumn: "2", gridRow: "1 / 4" }}>
-        <TallProductCard
-          product={PRODUCTS[1]}
-          wishlist={wishlist}
-          toggleWishlist={toggleWishlist}
-        />
-      </div>
+            {/* Elegant Crochet Handbag */}
+            <div style={{ gridColumn: "2", gridRow: "1 / 4" }}>
+              <TallProductCard
+                product={PRODUCTS[1]}
+                wishlist={wishlist}
+                toggleWishlist={toggleWishlist}
+              />
+            </div>
 
-      {/* Crochet Sheep */}
-      <div style={{ gridColumn: "3", gridRow: "1/3" }}>
-        <SmallProductCard
-          product={PRODUCTS[2]}
-          wishlist={wishlist}
-          toggleWishlist={toggleWishlist}
-        />
-      </div>
+            {/* Crochet Sheep */}
+            <div style={{ gridColumn: "3", gridRow: "1/3" }}>
+              <TallProductCard
+                product={PRODUCTS[2]}
+                wishlist={wishlist}
+                toggleWishlist={toggleWishlist}
+              />
+            </div>
 
-      {/* Floral Wall Hanging */}
-      <div style={{ gridColumn: "4", gridRow: "1/3" }}>
-        <SmallProductCard
-          product={PRODUCTS[3]}
-          wishlist={wishlist}
-          toggleWishlist={toggleWishlist}
-        />
-      </div>
+            {/* Floral Wall Hanging */}
+            <div style={{ gridColumn: "4", gridRow: "1/3" }}>
+              <TallProductCard
+                product={PRODUCTS[3]}
+                wishlist={wishlist}
+                toggleWishlist={toggleWishlist}
+              />
+            </div>
 
-      {/* Dreamcatcher */}
-      <div style={{ gridColumn: "1", gridRow: "3 / 5" }}>
-        <TallProductCard
-          product={PRODUCTS[4]}
-          wishlist={wishlist}
-          toggleWishlist={toggleWishlist}
-        />
-      </div>
+            {/* Dreamcatcher */}
+            <div style={{ gridColumn: "1", gridRow: "3 / 5" }}>
+              <TallProductCard
+                product={PRODUCTS[4]}
+                wishlist={wishlist}
+                toggleWishlist={toggleWishlist}
+              />
+            </div>
 
-      {/* Handmade Wallet */}
-      <div style={{ gridColumn: "2", gridRow: "4" }}>
-        <SmallProductCard
-          product={PRODUCTS[5]}
-          wishlist={wishlist}
-          toggleWishlist={toggleWishlist}
-        />
-      </div>
+            {/* Handmade Wallet */}
+            <div style={{ gridColumn: "2", gridRow: "4" }}>
+              <SmallProductCard
+                product={PRODUCTS[5]}
+                wishlist={wishlist}
+                toggleWishlist={toggleWishlist}
+              />
+            </div>
 
-      {/* Potli Bag */}
-      <div style={{ gridColumn: "3 / 5", gridRow: "3 / 5" }}>
-        <WideTallCard
-          product={PRODUCTS[6]}
-          wishlist={wishlist}
-          toggleWishlist={toggleWishlist}
-        />
-      </div>
-    </div>
-  </div>
-</section>
+            {/* Potli Bag */}
+            <div style={{ gridColumn: "3 / 5", gridRow: "3 / 5" }}>
+              <WideTallCard
+                product={PRODUCTS[6]}
+                wishlist={wishlist}
+                toggleWishlist={toggleWishlist}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* MOBILE & TABLET GRID (below lg) — matches your sketch layout */}
+        <div
+          className="grid gap-4 lg:hidden"
+          style={{
+            gridTemplateColumns: "1fr 1fr",
+            gridTemplateAreas: `
+        "a c"
+        "b c"
+        "d d"
+        "e f"
+        "g g"
+      `,
+            gridTemplateRows: "280px 280px 340px 280px 340px",
+          }}
+        >
+          {/* 1 - Pearl Crochet Pouch */}
+          <div style={{ gridArea: "a" }}>
+            <TallProductCard
+              product={PRODUCTS[0]}
+              wishlist={wishlist}
+              toggleWishlist={toggleWishlist}
+            />
+          </div>
+
+          {/* 2 - Elegant Crochet Handbag */}
+          <div style={{ gridArea: "b" }}>
+            <TallProductCard
+              product={PRODUCTS[1]}
+              wishlist={wishlist}
+              toggleWishlist={toggleWishlist}
+            />
+          </div>
+
+          {/* 3 - Crochet Sheep (tall, right column spanning both rows) */}
+          <div style={{ gridArea: "c" }}>
+            <TallProductCard
+              product={PRODUCTS[2]}
+              wishlist={wishlist}
+              toggleWishlist={toggleWishlist}
+            />
+          </div>
+
+          {/* 4 - Floral Wall Hanging (full width) */}
+          <div style={{ gridArea: "d" }}>
+            <WideTallCard
+              product={PRODUCTS[3]}
+              wishlist={wishlist}
+              toggleWishlist={toggleWishlist}
+            />
+          </div>
+
+          {/* 5 - Dreamcatcher */}
+          <div style={{ gridArea: "e" }}>
+            <TallProductCard
+              product={PRODUCTS[4]}
+              wishlist={wishlist}
+              toggleWishlist={toggleWishlist}
+            />
+          </div>
+
+          {/* 6 - Handmade Wallet */}
+          <div style={{ gridArea: "f" }}>
+            <TallProductCard
+              product={PRODUCTS[5]}
+              wishlist={wishlist}
+              toggleWishlist={toggleWishlist}
+            />
+          </div>
+
+          {/* 7 - Potli Bag (full width) */}
+          <div style={{ gridArea: "g" }}>
+            <WideTallCard
+              product={PRODUCTS[6]}
+              wishlist={wishlist}
+              toggleWishlist={toggleWishlist}
+            />
+          </div>
+        </div>
+      </section>
 
       {/* STORY BANNER — full-width image bg with text overlay like Image 2 */}
-  <section className="max-w-7xl mx-auto px-4 mt-10">
-  <div className="overflow-x-auto no-scrollbar pb-2">
+      {/* STORY BANNER */}
+<section className="max-w-7xl mx-auto px-4 mt-10">
+
+  {/* DESKTOP (lg and up) — unchanged */}
+  <div className="hidden lg:block overflow-x-auto no-scrollbar pb-2">
     <div
-      className="min-w-[1000px] lg:min-w-0 rounded-3xl overflow-hidden bg-[#f6f3ea]"
+      className="min-w-0 rounded-3xl overflow-hidden bg-[#f6f3ea]"
       style={{
         backgroundImage: "url('/images/your_vision.png')",
         backgroundSize: "cover",
@@ -783,7 +871,7 @@ export default function CrochetAllifyCollections() {
         <div></div>
 
         {/* RIGHT SIDE CONTENT */}
-        <div className="flex flex-col justify-center px-10 md:px-14 py-8 bg-white/20 backdrop-blur-[1px]">
+        <div className="flex flex-col justify-center px-10 md:px-14 py-8">
           <p className="text-xs font-semibold tracking-[0.25em] uppercase text-[#4a6741] mb-3">
             MADE WITH PURPOSE ♡
           </p>
@@ -796,8 +884,8 @@ export default function CrochetAllifyCollections() {
           </h2>
 
           <p className="text-gray-600 leading-relaxed max-w-lg mb-8">
-            Our creations are not factory-made. Every knot, loop and design
-            carries patience, creativity and warmth.
+            Our creations are not factory-made. Every knot, loop and
+            design carries patience, creativity and warmth.
           </p>
 
           <button className="w-fit flex items-center gap-2 bg-[#4a6741] text-white px-7 py-3 rounded-full hover:bg-[#3a5331] transition">
@@ -812,7 +900,6 @@ export default function CrochetAllifyCollections() {
                 <div className="w-12 h-12 rounded-full border border-[#cfc8bb] flex items-center justify-center">
                   <GiWool className="text-[#4a6741]" />
                 </div>
-
                 <span className="text-sm text-gray-700">
                   Crafted
                   <br />
@@ -824,7 +911,6 @@ export default function CrochetAllifyCollections() {
                 <div className="w-12 h-12 rounded-full border border-[#cfc8bb] flex items-center justify-center">
                   <MdOutlineEco className="text-[#4a6741]" />
                 </div>
-
                 <span className="text-sm text-gray-700">
                   Sustainable
                   <br />
@@ -836,7 +922,6 @@ export default function CrochetAllifyCollections() {
                 <div className="w-12 h-12 rounded-full border border-[#cfc8bb] flex items-center justify-center">
                   <FiHeart className="text-[#4a6741]" />
                 </div>
-
                 <span className="text-sm text-gray-700">
                   Made to
                   <br />
@@ -848,11 +933,81 @@ export default function CrochetAllifyCollections() {
         </div>
       </div>
     </div>
+  </div>
 
-    {/* Optional Mobile Hint */}
-    <p className="text-center text-xs text-gray-400 mt-3 lg:hidden">
-      ← Swipe to explore →
-    </p>
+  {/* MOBILE & TABLET (below lg) — image as top banner, text stacked below */}
+  <div className="lg:hidden rounded-3xl overflow-hidden bg-white shadow-sm border border-gray-100">
+    {/* Image banner */}
+    <div
+      className="w-full h-48 sm:h-64"
+      style={{
+        backgroundImage: "url('/images/your_vision.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "left center",
+      }}
+    />
+
+    {/* Text content */}
+    <div className="px-6 sm:px-10 py-8 text-center sm:text-left">
+      <p className="text-xs font-semibold tracking-[0.25em] uppercase text-[#4a6741] mb-3">
+        MADE WITH PURPOSE ♡
+      </p>
+
+      <h2
+        className="text-3xl sm:text-4xl text-gray-800 mb-4"
+        style={{ fontFamily: "Georgia, serif" }}
+      >
+        Every Stitch Has A Story ♡
+      </h2>
+
+      <p className="text-gray-600 leading-relaxed mb-6 text-sm sm:text-base">
+        Our creations are not factory-made. Every knot, loop and
+        design carries patience, creativity and warmth.
+      </p>
+
+      <button className="w-fit flex items-center gap-2 bg-[#4a6741] text-white px-7 py-3 rounded-full hover:bg-[#3a5331] transition mx-auto sm:mx-0">
+        Read Our Story
+        <FiArrowRight />
+      </button>
+
+      {/* Bottom Icons */}
+      <div className="mt-8 pt-6 border-t border-[#d8d2c7]">
+        <div className="flex flex-wrap justify-center sm:justify-start gap-6 sm:gap-8">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-full border border-[#cfc8bb] flex items-center justify-center flex-shrink-0">
+              <GiWool className="text-[#4a6741]" />
+            </div>
+            <span className="text-sm text-gray-700 text-left">
+              Crafted
+              <br />
+              by Hand
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-full border border-[#cfc8bb] flex items-center justify-center flex-shrink-0">
+              <MdOutlineEco className="text-[#4a6741]" />
+            </div>
+            <span className="text-sm text-gray-700 text-left">
+              Sustainable
+              <br />
+              Materials
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-full border border-[#cfc8bb] flex items-center justify-center flex-shrink-0">
+              <FiHeart className="text-[#4a6741]" />
+            </div>
+            <span className="text-sm text-gray-700 text-left">
+              Made to
+              <br />
+              Last
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
       {/* TRENDING / NEW ARRIVALS / HANDMADE FAVORITES — with arrow nav like Image 2 */}
@@ -869,73 +1024,90 @@ export default function CrochetAllifyCollections() {
         </div>
       </section>
 
-      {/* CUSTOM ORDER CTA */}
-      <section className="max-w-7xl mx-auto px-4 mt-10">
-        <div
-          className="relative rounded-3xl overflow-hidden"
-          style={{
-            backgroundImage: "url(/images/collection_section2.png)",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
+     {/* CUSTOM ORDER CTA */}
+<section className="max-w-7xl mx-auto px-4 mt-10">
+  <div className="relative rounded-3xl overflow-hidden">
+    {/* Desktop background */}
+    <div
+      className="absolute inset-0 hidden lg:block"
+      style={{
+        backgroundImage: "url(/images/collection_section2.png)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    />
+    {/* Mobile/Tablet background (separate portrait image) */}
+    <div
+      className="absolute inset-0 lg:hidden"
+      style={{
+        backgroundImage: "url(/images/collection_mobile1.png)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    />
+
+    {/* Overlay */}
+    <div className="absolute inset-0 bg-black/45 lg:bg-gradient-to-r lg:from-black/50 lg:via-black/20 lg:to-black/40" />
+
+    <div className="relative flex flex-col lg:flex-row items-center gap-8 lg:gap-6 px-6 lg:px-8 py-10">
+      <div className="flex-1 text-center lg:text-left">
+        <h2
+          className="text-2xl md:text-3xl font-bold text-white mb-2 drop-shadow-lg"
+          style={{ fontFamily: "Georgia, serif" }}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-black/40" />
-          <div className="relative flex flex-col md:flex-row items-center gap-6 px-8 py-10">
-            <div className="flex-1 text-center md:text-left">
-              <h2
-  className="text-2xl md:text-3xl font-bold text-white mb-2 drop-shadow-lg"
-  style={{ fontFamily: "Georgia, serif" }}
->
-                Can't Find Your Dream Design?{" "}
-                <FiHeart className="inline text-rose-300" />
-              </h2>
-              <p className="text-white/80 text-sm mb-5">
-                Share your vision and we'll craft something truly personal.
-              </p>
-              <button className="flex items-center gap-2 bg-white text-[#4a6741] px-6 py-2.5 rounded-full text-sm font-bold hover:bg-gray-50 transition-colors mx-auto md:mx-0 shadow-md">
-                Create Custom Order <FiArrowRight />
-              </button>
+          Can't Find Your Dream Design?{" "}
+          <FiHeart className="inline text-rose-300" />
+        </h2>
+        <p className="text-white/80 text-sm mb-5">
+          Share your vision and we'll craft something truly personal.
+        </p>
+        <button className="flex items-center gap-2 bg-white text-[#4a6741] px-6 py-2.5 rounded-full text-sm font-bold hover:bg-gray-50 transition-colors mx-auto lg:mx-0 shadow-md">
+          Create Custom Order <FiArrowRight />
+        </button>
+      </div>
+
+      {/* Process steps */}
+      <div className="flex justify-center gap-8 sm:gap-12 lg:gap-6 w-full lg:w-auto">
+        {processSteps.map((step, index) => (
+          <div key={index} className="flex flex-col items-center text-center">
+            <div className="mb-3 flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-full text-white border border-white/30">
+              {step.icon}
             </div>
-            {processSteps.map((step, index) => (
-              <div
-                key={index}
-                className="flex flex-col items-center text-center"
-              >
-                <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full text-white border border-white/30">
-                  {step.icon}
-                </div>
-
-                <h4 className="font-semibold text-lg text-white">{step.label}</h4>
-
-                <p className="text-sm text-white/80">{step.sub}</p>
-              </div>
-            ))}
+            <h4 className="font-semibold text-sm lg:text-lg text-white">
+              {step.label}
+            </h4>
+            <p className="text-xs lg:text-sm text-white/80">{step.sub}</p>
           </div>
-        </div>
-      </section>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
 
-      {/* QUOTE BANNER */}
-      <section className="max-w-7xl mx-auto px-4 mt-8">
-        <div
-          className="relative rounded-3xl overflow-hidden px-8 py-14 text-center"
-          style={{
-            backgroundImage: "url(/images/collection_section3.png)",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
-          <div className="absolute" />
-          <p
-            className="relative z-10 text-3xl md:text-4xl font-bold text-gray-800 leading-relaxed"
-            style={{ fontFamily: "Georgia, serif" }}
-          >
-            Handmade is not just a product,
-            <br />
-            it's a <span className="italic text-[#4a6741]">feeling</span> you
-            can hold <FiHeart className="inline text-rose-400" />
-          </p>
-        </div>
-      </section>
+{/* QUOTE BANNER */}
+<section className="max-w-7xl mx-auto px-4 mt-8">
+  <div
+    className="relative rounded-3xl overflow-hidden px-6 sm:px-8 py-10 sm:py-14 text-center"
+    style={{
+      backgroundImage: "url(/images/collection_section3.png)",
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+    }}
+  >
+    {/* Overlay for text readability on mobile */}
+    <div className="absolute inset-0 " />
+
+    <p
+      className="relative z-10 text-xl sm:text-2xl md:text-4xl font-bold text-gray-800 leading-snug sm:leading-relaxed"
+      style={{ fontFamily: "Georgia, serif" }}
+    >
+      Handmade is not just a product,
+      <br className="hidden sm:block" /> it's a{" "}
+      <span className="italic text-[#4a6741]">feeling</span> you can hold{" "}
+      <FiHeart className="inline text-rose-400" />
+    </p>
+  </div>
+</section>
 
       {/* FOOTER TRUST BAR */}
       <footer className="max-w-7xl mx-auto px-4 mt-8 mb-6">

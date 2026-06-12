@@ -4,6 +4,8 @@ import Collections from "@/components/home/collections";
 import PieceOfHeart from "@/components/home/pieceOfHeart";
 import Bestsellers from "@/components/home/BestSellers";
 import Vision from "@/components/home/vision";
+import Testimonials from "@/components/home/Testimonialsfaqsection";
+import QuoteSection from "@/components/home/quoteSection";
 import Footer from "@/components/layout/Footer";
 
 export default function Home() {
@@ -15,6 +17,8 @@ export default function Home() {
       <PieceOfHeart />
       <Bestsellers />
       <Vision />
+      <Testimonials />
+      <QuoteSection />
       <Footer />
     </main>
   );

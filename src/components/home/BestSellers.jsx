@@ -15,78 +15,134 @@ export default function Bestsellers() {
     { name: "Handmade Wallet", price: "699", img: "/images/Handmade_Wallet.png" },
   ];
 
-  const scrollLeft = () => scrollRef.current?.scrollBy({ left: -300, behavior: "smooth" });
-  const scrollRight = () => scrollRef.current?.scrollBy({ left: 300, behavior: "smooth" });
+  const scrollLeft = () =>
+    scrollRef.current?.scrollBy({ left: -280, behavior: "smooth" });
+
+  const scrollRight = () =>
+    scrollRef.current?.scrollBy({ left: 280, behavior: "smooth" });
 
   return (
-    <section
-      className="px-6 md:px-16 py-12 md:py-16"
-    >
-      {/* Heading */}
-      <div className="mb-8">
-        <p className="text-[11px] tracking-[0.35em] font-semibold uppercase mb-2" style={{ color: "#8A9580" }}>
-          Our Bestsellers
-        </p>
-        <h2 className="font-heading text-4xl sm:text-5xl font-bold text-gray-900">
-          Loved by Many
-        </h2>
-      </div>
+    <section className="px-4 sm:px-6 md:px-12 py-10 md:py-16">
 
-      {/* Carousel */}
-      <div className="relative flex items-center gap-3">
+      {/* Heading row */}
+      <div className="flex items-end justify-between mb-8 md:mb-10">
+        <div>
+          <p
+            className="text-[11px] tracking-[0.35em] font-semibold uppercase mb-2"
+            style={{ color: "#8A9580" }}
+          >
+            Our Bestsellers
+          </p>
 
-        {/* Left Arrow */}
-        <button
-          onClick={scrollLeft}
-          className="flex-shrink-0 w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-gray-50 transition"
-          style={{ color: "#3D5938" }}
-        >
-          <FiArrowLeft size={16} />
-        </button>
+          <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900">
+            Loved by Many
+          </h2>
 
-        {/* Cards row */}
-        <div
-          ref={scrollRef}
-          className="flex gap-4 overflow-x-auto flex-1"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        >
-          {products.map((p, i) => (
-            <div
-              key={i}
-              className="flex-1 min-w-0 cursor-pointer"
-            >
-              {/* Image */}
-              <div
-                className="relative w-full aspect-square rounded-2xl overflow-hidden mb-3"
-                style={{ boxShadow: "0 6px 16px rgba(61,89,56,0.10)", backgroundColor: "#D4DDC8" }}
-              >
-                <img src={p.img} alt={p.name} className="w-full h-full object-cover" />
-                <button className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm hover:bg-gray-50 transition">
-                  <FiHeart size={14} style={{ color: "#3D5938" }} />
-                </button>
-              </div>
-
-              {/* Info */}
-              <p className="text-sm font-semibold leading-tight mb-1" style={{ color: "#3D5938" }}>
-                {p.name}
-              </p>
-              <p className="text-sm font-bold" style={{ color: "#6B7565" }}>
-                ₹{p.price}
-              </p>
-            </div>
-          ))}
+          <div className="flex items-center gap-2 mt-2">
+            <div className="w-16 h-[2px]" style={{ backgroundColor: "#3D5938" }} />
+            <span className="text-sm" style={{ color: "#3D5938" }}>✦</span>
+          </div>
         </div>
 
-        {/* Right Arrow */}
-        <button
-          onClick={scrollRight}
-          className="flex-shrink-0 w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-gray-50 transition"
-          style={{ color: "#3D5938" }}
-        >
-          <FiArrowRight size={16} />
-        </button>
+        {/* Arrow buttons */}
+        <div className="hidden md:flex items-center gap-2 mb-1">
+          <button
+            onClick={scrollLeft}
+            className="w-9 h-9 rounded-full border flex items-center justify-center hover:bg-white transition"
+            style={{ borderColor: "#3D5938", color: "#3D5938" }}
+          >
+            <FiArrowLeft size={15} />
+          </button>
 
+          <button
+            onClick={scrollRight}
+            className="w-9 h-9 rounded-full flex items-center justify-center text-white transition hover:opacity-90"
+            style={{ backgroundColor: "#3D5938" }}
+          >
+            <FiArrowRight size={15} />
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile scroll */}
+      <div className="md:hidden">
+        <div
+          ref={scrollRef}
+          className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-4 px-4 pb-2"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
+          {products.map((p, i) => (
+            <ProductCard key={i} product={p} mobile />
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop scroll */}
+      <div className="hidden md:block">
+        <div
+          ref={scrollRef}
+          className="flex gap-5 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
+          {products.map((p, i) => (
+            <ProductCard key={i} product={p} />
+          ))}
+        </div>
       </div>
     </section>
+  );
+}
+
+/* Product Card */
+function ProductCard({ product, mobile }) {
+  return (
+    <div
+      className={`
+        group snap-start flex-shrink-0 cursor-pointer
+        ${mobile ? "w-[60vw] max-w-[220px]" : "w-[22%] min-w-[200px]"}
+      `}
+    >
+      {/* Image */}
+      <div
+        className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden mb-3 transition-transform duration-300 group-hover:scale-[1.02]"
+        style={{
+          boxShadow: "0 6px 20px rgba(61,89,56,0.10)",
+          backgroundColor: "#D4DDC8",
+        }}
+      >
+        <img
+          src={product.img}
+          alt={product.name}
+          className="w-full h-full object-cover"
+        />
+
+        {/* Wishlist */}
+        <button className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white transition">
+          <FiHeart size={13} style={{ color: "#3D5938" }} />
+        </button>
+
+        {/* Add to Cart */}
+        <div className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+          <button
+            className="w-full py-2.5 text-xs font-semibold text-white tracking-wide"
+            style={{ backgroundColor: "#3D5938" }}
+          >
+            Add to Cart
+          </button>
+        </div>
+      </div>
+
+      {/* Info */}
+      <p
+        className="text-sm font-semibold leading-snug mb-0.5 truncate"
+        style={{ color: "#3D5938" }}
+      >
+        {product.name}
+      </p>
+
+      <p className="text-sm font-bold" style={{ color: "#6B7565" }}>
+        ₹{product.price}
+      </p>
+    </div>
   );
 }
