@@ -1,18 +1,29 @@
 "use client";
 
+import { FaGooglePay, FaCcVisa } from "react-icons/fa";
+import { SiPaytm } from "react-icons/si";
 import { FiInstagram, FiMail, FiPhone, FiMapPin } from "react-icons/fi";
 import { FaWhatsapp, FaPinterestP } from "react-icons/fa";
-
+import Link from "next/link";
 export default function Footer() {
-  const quickLinks = ["Collections", "Custom Orders", "About Us", "Contact"];
-  const helpLinks = ["Shipping & Delivery", "Returns & Refunds", "Track Order", "FAQs"];
+  const quickLinks = [
+    { name: "Collections", href: "/collection" },
+    { name: "Custom Orders", href: "/contact" },
+    { name: "About Us", href: "/about" },
+    { name: "Contact", href: "/contact" },
+  ];
+
+  const helpLinks = [
+    { name: "Shipping & Delivery", href: "/legal/shipping-delivery" },
+    { name: "Returns & Refunds", href: "/legal/return-refund" },
+    { name: "Track Order", href: "/legal/track-order" },
+    { name: "FAQs", href: "/legal/FAQ" },
+  ];
 
   return (
     <footer className="relative pt-12 pb-6 px-6 md:px-12 mt-20">
-
       {/* MAIN GRID */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-x-6 gap-y-10 py-10">
-
         {/* Column 1: Logo + tagline + socials — full width on mobile */}
         <div className="col-span-2 md:col-span-1">
           <div className="flex items-center gap-2 mb-3">
@@ -48,43 +59,29 @@ export default function Footer() {
         </div>
 
         {/* Column 2: Quick Links */}
-        <div className="col-span-1">
-          <h4
-            className="font-semibold text-sm mb-4"
-            style={{ color: "#3D5938" }}
-          >
-            Quick Links
-          </h4>
-          <ul className="space-y-2.5">
-            {quickLinks.map((link, i) => (
-              <li
-                key={i}
-                className="text-xs text-warm hover:text-primary cursor-pointer transition"
-              >
-                {link}
-              </li>
-            ))}
-          </ul>
+        <div className="space-y-3">
+          {quickLinks.map((link) => (
+            <Link
+              key={link.name}
+              href={link.href}
+              className="block text-sm hover:translate-x-1 transition-transform"
+            >
+              {link.name}
+            </Link>
+          ))}
         </div>
 
         {/* Column 3: Help */}
-        <div className="col-span-1">
-          <h4
-            className="font-semibold text-sm mb-4"
-            style={{ color: "#3D5938" }}
-          >
-            Help
-          </h4>
-          <ul className="space-y-2.5">
-            {helpLinks.map((link, i) => (
-              <li
-                key={i}
-                className="text-xs text-warm hover:text-primary cursor-pointer transition"
-              >
-                {link}
-              </li>
-            ))}
-          </ul>
+        <div className="space-y-3">
+          {helpLinks.map((link) => (
+            <Link
+              key={link.name}
+              href={link.href}
+              className="block text-sm hover:translate-x-1 transition-transform"
+            >
+              {link.name}
+            </Link>
+          ))}
         </div>
 
         {/* Column 4: Let's Connect */}
@@ -98,11 +95,23 @@ export default function Footer() {
           <ul className="space-y-3">
             <li className="flex items-center gap-2 text-xs text-warm">
               <FiInstagram size={13} style={{ color: "#3D5938" }} />
-              @crochet_alif
+              <Link
+                href="https://www.instagram.com/crochet_alif"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                @crochet_alif
+              </Link>
             </li>
             <li className="flex items-center gap-2 text-xs text-warm">
               <FiPhone size={13} style={{ color: "#3D5938" }} />
-              70891 06227
+              <Link
+                href="tel:7089106227"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                70891 06227
+              </Link>
             </li>
             <li className="flex items-center gap-2 text-xs text-warm">
               <FiMapPin size={13} style={{ color: "#3D5938" }} />
@@ -119,15 +128,21 @@ export default function Footer() {
           >
             We Accept
           </h4>
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="px-3 py-1.5 bg-white rounded shadow-soft text-[11px] font-bold text-blue-700">
-              VISA
+
+          <div className="flex items-center gap-4 flex-wrap">
+            {/* Google Pay */}
+            <div className="bg-white rounded-lg p-2 shadow-soft">
+              <FaGooglePay size={36} />
             </div>
-            <div className="px-3 py-1.5 bg-white rounded shadow-soft text-[11px] font-bold text-red-600">
-              MC
+
+            {/* Paytm */}
+            <div className="bg-white rounded-lg p-2 shadow-soft">
+              <SiPaytm size={30} color="#00BAF2" />
             </div>
-            <div className="px-3 py-1.5 bg-white rounded shadow-soft text-[11px] font-bold" style={{ color: "#3D5938" }}>
-              UPI
+
+            {/* Visa */}
+            <div className="bg-white rounded-lg p-2 shadow-soft">
+              <FaCcVisa size={36} color="#1A1F71" />
             </div>
           </div>
         </div>

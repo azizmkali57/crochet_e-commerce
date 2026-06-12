@@ -1,3 +1,4 @@
+import { CartProvider } from "@/components/context/CartContext";
 import "./globals.css";
 
 export const metadata = {
@@ -9,7 +10,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" style={{ colorScheme: "light", backgroundColor: "#F5F1E8" }}>
       <body style={{ backgroundColor: "#F5F1E8" }}>
-        {children}
+        <CartProvider>{children}</CartProvider>
       </body>
     </html>
   );

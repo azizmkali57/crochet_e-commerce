@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FiArrowRight, FiHeart } from "react-icons/fi";
 import {
   PiPlantBold,
@@ -17,13 +18,13 @@ export default function HeroSection() {
   ];
 
   return (
-    <section className="relative overflow-hidden" style={{ minHeight: "100svh" }}>
+    <section className="relative overflow-hidden " style={{ minHeight: "100svh" }}>
 
       {/* MOBILE */}
       <div className="block md:hidden relative" style={{ minHeight: "100svh" }}>
 
         <div
-          className="absolute inset-0"
+          className="absolute "
           style={{
             backgroundImage: "url('/images/mobile_view1.png')",
             backgroundSize: "cover",
@@ -40,7 +41,7 @@ export default function HeroSection() {
           }}
         />
 
-        <div className="relative z-10 flex flex-col px-6 pt-28 pb-10" style={{ minHeight: "100svh" }}>
+        <div className="relative z-10 flex flex-col px-6 pt-36 pb-10" style={{ minHeight: "100svh" }}>
 
           <p className="text-[10px] tracking-[0.3em] uppercase font-semibold mb-4" style={{ color: "#3D5938" }}>
             Crafted With Love
@@ -59,14 +60,25 @@ export default function HeroSection() {
           </p>
 
           <div className="flex flex-col gap-3 mb-auto max-w-[260px]">
-            <button className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full text-white font-semibold text-sm" style={{ backgroundColor: "#3D5938" }}>
-              Explore Collections <FiArrowRight size={15} />
-            </button>
+  <Link
+    href="/collection"
+    className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full text-white font-semibold text-sm"
+    style={{ backgroundColor: "#3D5938" }}
+  >
+    Explore Collections <FiArrowRight size={15} />
+  </Link>
 
-            <button className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full bg-white/70 font-medium text-sm" style={{ border: "1px solid #3D5938", color: "#3D5938" }}>
-              Custom Order <FiHeart size={14} />
-            </button>
-          </div>
+  <Link
+    href="/contact"
+    className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full bg-white/70 font-medium text-sm"
+    style={{
+      border: "1px solid #3D5938",
+      color: "#3D5938",
+    }}
+  >
+    Custom Order <FiHeart size={14} />  
+  </Link>
+</div>
 
           <div className="flex justify-between mt-10 pb-4">
             {features.map((f, i) => (

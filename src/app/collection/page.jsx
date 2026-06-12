@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import Link from "next/link";
 import Header from "@/components/layout/Header";
 import {
   FiShoppingCart,
@@ -73,6 +74,7 @@ const PRODUCTS = [
   {
     id: 1,
     name: "Pearl Crochet Pouch",
+    slug: "pearl-crochet-pouch",
     price: 1299,
     rating: 4.9,
     reviews: 128,
@@ -85,6 +87,7 @@ const PRODUCTS = [
   {
     id: 2,
     name: "Elegant Crochet Handbag",
+    slug: "elegant-crochet-handbag",
     price: 2499,
     rating: 5.0,
     reviews: 96,
@@ -97,6 +100,7 @@ const PRODUCTS = [
   {
     id: 3,
     name: "Crochet Sheep (Shamsheer)",
+    slug: "crochet-sheep-shamsheer",
     price: 899,
     rating: 4.9,
     reviews: 110,
@@ -108,6 +112,7 @@ const PRODUCTS = [
   {
     id: 4,
     name: "Floral Wall Hanging",
+    slug: "floral-wall-hanging",
     price: 1199,
     rating: 4.8,
     reviews: 65,
@@ -119,6 +124,7 @@ const PRODUCTS = [
   {
     id: 5,
     name: "Dreamcatcher Wall Hanging",
+    slug: "dreamcatcher-wall-hanging",
     price: 899,
     rating: 4.8,
     reviews: 72,
@@ -130,6 +136,7 @@ const PRODUCTS = [
   {
     id: 6,
     name: "Handmade Wallet",
+    slug: "handmade-wallet",
     price: 699,
     rating: 4.7,
     reviews: 58,
@@ -141,6 +148,7 @@ const PRODUCTS = [
   {
     id: 7,
     name: "Blush Crocheted Potli Bag",
+    slug: "blush-crocheted-potli-bag",
     price: 1499,
     rating: 5.0,
     reviews: 93,
@@ -246,7 +254,8 @@ function StarRating({ rating }) {
 // Card for tall layout (col-span-1, row-span-2) — image takes ~65%, info below
 function TallProductCard({ product, wishlist, toggleWishlist }) {
   return (
-    <div
+    <Link
+      href={`/collection/${product.slug}`}
       className={`relative rounded-2xl ${product.bg} overflow-hidden group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300 h-full flex flex-col`}
     >
       {product.badge && (
@@ -257,7 +266,10 @@ function TallProductCard({ product, wishlist, toggleWishlist }) {
         </span>
       )}
       <button
-        onClick={() => toggleWishlist(product.id)}
+        onClick={(e) => {
+          e.preventDefault();
+          toggleWishlist(product.id);
+        }}
         className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white transition-colors"
       >
         <FiHeart
@@ -289,20 +301,24 @@ function TallProductCard({ product, wishlist, toggleWishlist }) {
             <StarRating rating={product.rating} />
             <span className="text-xs text-gray-500">({product.reviews})</span>
           </div>
-          <button className="w-8 h-8 rounded-full bg-[#4a6741] flex items-center justify-center text-white hover:bg-[#3a5331] transition-colors shadow-sm">
+          <button
+            onClick={(e) => e.preventDefault()}
+            className="w-8 h-8 rounded-full bg-[#4a6741] flex items-center justify-center text-white hover:bg-[#3a5331] transition-colors shadow-sm"
+          >
             <FiShoppingCart className="text-sm" />
           </button>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
 // Card for small layout (col-span-1, row-span-1)
 function SmallProductCard({ product, wishlist, toggleWishlist }) {
   return (
-    <div
-      className={`relative rounded-2xl ${product.bg} overflow-hidden group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300`}
+    <Link
+      href={`/collection/${product.slug}`}
+      className={`relative rounded-2xl ${product.bg} overflow-hidden group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300 block`}
     >
       {product.badge && (
         <span
@@ -312,7 +328,10 @@ function SmallProductCard({ product, wishlist, toggleWishlist }) {
         </span>
       )}
       <button
-        onClick={() => toggleWishlist(product.id)}
+        onClick={(e) => {
+          e.preventDefault();
+          toggleWishlist(product.id);
+        }}
         className="absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white transition-colors"
       >
         <FiHeart
@@ -341,19 +360,23 @@ function SmallProductCard({ product, wishlist, toggleWishlist }) {
             <StarRating rating={product.rating} />
             <span className="text-xs text-gray-500">({product.reviews})</span>
           </div>
-          <button className="w-7 h-7 rounded-full bg-[#4a6741] flex items-center justify-center text-white hover:bg-[#3a5331] transition-colors shadow-sm">
+          <button
+            onClick={(e) => e.preventDefault()}
+            className="w-7 h-7 rounded-full bg-[#4a6741] flex items-center justify-center text-white hover:bg-[#3a5331] transition-colors shadow-sm"
+          >
             <FiShoppingCart className="text-xs" />
           </button>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
 // Card for wide-tall layout (col-span-2, row-span-2) — potli bag
 function WideTallCard({ product, wishlist, toggleWishlist }) {
   return (
-    <div
+    <Link
+      href={`/collection/${product.slug}`}
       className={`relative rounded-2xl ${product.bg} overflow-hidden group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300 h-full flex flex-col`}
     >
       {product.badge && (
@@ -364,7 +387,10 @@ function WideTallCard({ product, wishlist, toggleWishlist }) {
         </span>
       )}
       <button
-        onClick={() => toggleWishlist(product.id)}
+        onClick={(e) => {
+          e.preventDefault();
+          toggleWishlist(product.id);
+        }}
         className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white transition-colors"
       >
         <FiHeart
@@ -394,12 +420,15 @@ function WideTallCard({ product, wishlist, toggleWishlist }) {
             <StarRating rating={product.rating} />
             <span className="text-xs text-gray-500">({product.reviews})</span>
           </div>
-          <button className="w-9 h-9 rounded-full bg-[#4a6741] flex items-center justify-center text-white hover:bg-[#3a5331] transition-colors shadow-sm">
+          <button
+            onClick={(e) => e.preventDefault()}
+            className="w-9 h-9 rounded-full bg-[#4a6741] flex items-center justify-center text-white hover:bg-[#3a5331] transition-colors shadow-sm"
+          >
             <FiShoppingCart className="text-sm" />
           </button>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
