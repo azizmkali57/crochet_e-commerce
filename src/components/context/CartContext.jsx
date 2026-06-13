@@ -41,6 +41,9 @@ export function CartProvider({ children }) {
   const removeFromCart = (id) => {
     setCart((prev) => prev.filter((item) => item.id !== id));
   };
+  const clearCart = () => {
+  setCart([]);
+};
 
   // INCREASE QTY
   const increaseQty = (id) => {
@@ -81,6 +84,7 @@ export function CartProvider({ children }) {
         decreaseQty,
         cartCount,
         cartTotal,
+        clearCart,
       }}
     >
       {children}

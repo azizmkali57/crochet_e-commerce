@@ -3,10 +3,64 @@
 import { useState } from "react";
 import { useCart } from "@/components/context/CartContext";
 import { FiShoppingBag, FiCreditCard, FiMapPin, FiUser } from "react-icons/fi";
+import { useRouter } from "next/navigation";
 
 export default function CheckoutPage() {
-  const { cart, cartTotal } = useCart();
+  const { cart, cartTotal, clearCart } = useCart();
+const router = useRouter();
 
+  const handlePlaceOrder = () => {
+  if (
+    !form.name ||
+    !form.phone ||
+    !form.address ||
+    !form.city ||
+    !form.pincode
+  ) {
+    alert("Please fill all details");
+    return;
+  }
+
+  const orderItems = cart
+    .map(
+      (item) =>
+        `• ${item.name} x ${item.qty} - ₹${item.price * item.qty}`
+    )
+    .join("\n");
+
+  const message = `
+🧶 *New Crochet Order*
+
+👤 Name: ${form.name}
+📞 Phone: ${form.phone}
+
+📍 Address:
+${form.address}
+${form.city} - ${form.pincode}
+
+🛍️ Order Items:
+${orderItems}
+
+💰 Total: ₹${cartTotal}
+`;
+
+  const whatsappNumber = "917000577651"; // Your WhatsApp Number
+
+  const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+    message
+  )}`;
+
+  // Open WhatsApp
+  window.open(whatsappURL, "_blank");
+
+  // Clear cart
+  clearCart();
+
+  // Redirect to homepage after 1 second
+  setTimeout(() => {
+    router.push("/");
+  }, 1000);
+};
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -135,9 +189,12 @@ export default function CheckoutPage() {
           </div>
 
           {/* PLACE ORDER BUTTON */}
-          <button className="mt-6 w-full bg-[#3D5938] text-white py-3.5 rounded-full font-semibold hover:bg-[#2f452c] transition">
-            Place Order
-          </button>
+          <button
+  onClick={handlePlaceOrder}
+  className="mt-6 w-full bg-[#3D5938] text-white py-3.5 rounded-full font-semibold hover:bg-[#2f452c] transition"
+>
+  Place Order
+</button>
 
           <p className="text-xs text-gray-500 mt-3 text-center">
             You will receive confirmation after order placement

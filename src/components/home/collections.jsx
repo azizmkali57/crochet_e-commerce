@@ -1,16 +1,52 @@
 "use client";
 
+import Link from "next/link";
 import { FiArrowRight } from "react-icons/fi";
 import { useRef } from "react";
+import { getAllProducts } from "../../../lib/productData";
 
 export default function Collections() {
+  // Get all products to extract unique categories
+  const allProducts = getAllProducts();
+  
+  // Group products by category (you can customize this based on your needs)
   const categories = [
-    { name: "Bags & Pouches", img: "/images/Bags_&_Pouches.png" },
-    { name: "Home Decor", img: "/images/Home_Decor.png" },
-    { name: "Handkerchiefs", img: "/images/Handkerchiefs.png" },
-    { name: "Wall Hangings", img: "/images/Wall_Hangings_collections.png" },
-    { name: "Soft Toys", img: "/images/Soft_Toys.png" },
-    { name: "Accessories", img: "/images/Accessories.png" },
+    {
+      name: "Bags & Pouches",
+      img: "/images/Bags_&_Pouches.png",
+      slug: "bags", // Optional: for filtering
+      description: "Beautiful handcrafted bags and pouches",
+    },
+    {
+      name: "Home Decor",
+      img: "/images/Home_Decor.png",
+      slug: "home-decor",
+      description: "Add warmth to your space",
+    },
+    {
+      name: "Handkerchiefs",
+      img: "/images/Handkerchiefs.png",
+      slug: "handkerchiefs",
+      description: "Delicate and practical",
+    },
+    {
+      name: "Wall Hangings",
+      img: "/images/Wall_Hangings_collections.png",
+      slug: "wall-hangings",
+      description: "Transform your walls",
+    },
+    {
+      name: "Soft Toys",
+      img: "/images/Soft_Toys.png",
+      slug: "soft-toys",
+      description: "Adorable and huggable",
+    },
+    {
+      name: "Accessories",
+      img: "/images/Accessories.png",
+      slug: "accessories",
+      description: "Complete your look",
+    },
   ];
 
   const scrollRef = useRef(null);
@@ -54,9 +90,10 @@ export default function Collections() {
         style={{ WebkitOverflowScrolling: "touch" }}
       >
         {categories.map((cat, i) => (
-          <div
+          <Link
             key={i}
-            className="group cursor-pointer text-center flex-shrink-0 snap-start"
+            href={`/collection?category=${cat.slug}`}
+            className="group cursor-pointer text-center flex-shrink-0 snap-start hover:opacity-80 transition-opacity"
             style={{ width: "38vw", maxWidth: "160px" }}
           >
             <div
@@ -84,7 +121,7 @@ export default function Collections() {
                 style={{ color: "#3D5938" }}
               />
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 
@@ -102,7 +139,11 @@ export default function Collections() {
       {/* Desktop grid */}
       <div className="hidden sm:grid sm:grid-cols-3 md:grid-cols-6 gap-4 sm:gap-6">
         {categories.map((cat, i) => (
-          <div key={i} className="group cursor-pointer text-center">
+          <Link
+            key={i}
+            href={`/collection?category=${cat.slug}`}
+            className="group cursor-pointer text-center hover:opacity-80 transition-opacity"
+          >
             <div
               className="relative w-full aspect-[3/4] rounded-[40%_40%_30%_30%/30%_30%_25%_25%] overflow-hidden mb-3 transition-transform duration-300 group-hover:scale-105"
               style={{
@@ -128,7 +169,7 @@ export default function Collections() {
                 style={{ color: "#3D5938" }}
               />
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </section>

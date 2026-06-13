@@ -1,19 +1,44 @@
 "use client";
 
 import { useRef } from "react";
-import { FiArrowLeft, FiArrowRight, FiHeart } from "react-icons/fi";
+import Link from "next/link";
+import { FiArrowLeft, FiArrowRight, FiHeart, FiShoppingCart } from "react-icons/fi";
+import { BsStarFill } from "react-icons/bs";
+import { useCart } from "@/components/context/CartContext";
+import { getAllProducts } from "../../../lib/productData";
+
+function StarRating({ rating, size = "text-xs" }) {
+  return (
+    <div className="flex items-center gap-0.5">
+      {[1, 2, 3, 4, 5].map((s) => (
+        <BsStarFill
+          key={s}
+          className={`${size} ${
+            s <= Math.round(rating) ? "text-amber-400" : "text-gray-200"
+          }`}
+        />
+      ))}
+    </div>
+  );
+}
 
 export default function Bestsellers() {
   const scrollRef = useRef(null);
+  const { addToCart } = useCart();
 
-  const products = [
-    { name: "Strawberry Backpack", price: "2,499", img: "/images/Strawberry_Backpack.png" },
-    { name: "Crochet Sheep", price: "899", img: "/images/Crochet_Sheep.png" },
-    { name: "Pearl Handle Pouch", price: "1,299", img: "/images/Pearl_Pouch.png" },
-    { name: "Dreamcatcher Wall Hanging", price: "690", img: "/images/Wall_Hanging.png" },
-    { name: "Granny Square Sweater", price: "1,699", img: "/images/Granny_Sweater.png" },
-    { name: "Handmade Wallet", price: "699", img: "/images/Handmade_Wallet.png" },
-  ];
+  // Get all products and filter for bestsellers (those with badge "Bestseller")
+  const allProducts = getAllProducts();
+
+const bestsellerProducts = allProducts.filter(
+  (p) => p.badge === "Bestseller"
+);
+
+// If less than 4 bestseller products exist,
+// show all products instead.
+const products =
+  bestsellerProducts.length >= 4
+    ? bestsellerProducts
+    : allProducts;
 
   const scrollLeft = () =>
     scrollRef.current?.scrollBy({ left: -280, behavior: "smooth" });
@@ -50,6 +75,7 @@ export default function Bestsellers() {
             onClick={scrollLeft}
             className="w-9 h-9 rounded-full border flex items-center justify-center hover:bg-white transition"
             style={{ borderColor: "#3D5938", color: "#3D5938" }}
+            aria-label="Scroll left"
           >
             <FiArrowLeft size={15} />
           </button>
@@ -58,6 +84,7 @@ export default function Bestsellers() {
             onClick={scrollRight}
             className="w-9 h-9 rounded-full flex items-center justify-center text-white transition hover:opacity-90"
             style={{ backgroundColor: "#3D5938" }}
+            aria-label="Scroll right"
           >
             <FiArrowRight size={15} />
           </button>
@@ -71,8 +98,13 @@ export default function Bestsellers() {
           className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-4 px-4 pb-2"
           style={{ WebkitOverflowScrolling: "touch" }}
         >
-          {products.map((p, i) => (
-            <ProductCard key={i} product={p} mobile />
+          {products.map((p) => (
+            <ProductCard
+              key={p.slug}
+              product={p}
+              mobile
+              addToCart={addToCart}
+            />
           ))}
         </div>
       </div>
@@ -84,8 +116,12 @@ export default function Bestsellers() {
           className="flex gap-5 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2"
           style={{ WebkitOverflowScrolling: "touch" }}
         >
-          {products.map((p, i) => (
-            <ProductCard key={i} product={p} />
+          {products.map((p) => (
+            <ProductCard
+              key={p.slug}
+              product={p}
+              addToCart={addToCart}
+            />
           ))}
         </div>
       </div>
@@ -93,10 +129,11 @@ export default function Bestsellers() {
   );
 }
 
-/* Product Card */
-function ProductCard({ product, mobile }) {
+/* Product Card - Updated to use actual product data and proper linking */
+function ProductCard({ product, mobile, addToCart }) {
   return (
-    <div
+    <Link
+      href={`/collection/${product.slug}`}
       className={`
         group snap-start flex-shrink-0 cursor-pointer
         ${mobile ? "w-[60vw] max-w-[220px]" : "w-[22%] min-w-[200px]"}
@@ -111,25 +148,54 @@ function ProductCard({ product, mobile }) {
         }}
       >
         <img
-          src={product.img}
+          src={product.images?.[0] || product.img}
           alt={product.name}
           className="w-full h-full object-cover"
+          onError={(e) => {
+            e.target.src = `https://placehold.co/300x400/e8f0e0/4a6741?text=${encodeURIComponent(product.name)}`;
+          }}
         />
 
         {/* Wishlist */}
-        <button className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white transition">
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white transition"
+        >
           <FiHeart size={13} style={{ color: "#3D5938" }} />
         </button>
 
         {/* Add to Cart */}
         <div className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
           <button
-            className="w-full py-2.5 text-xs font-semibold text-white tracking-wide"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              addToCart({
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                image: product.images?.[0],
+              });
+            }}
+            className="w-full py-2.5 text-xs font-semibold text-white tracking-wide flex items-center justify-center gap-2"
             style={{ backgroundColor: "#3D5938" }}
           >
+            <FiShoppingCart size={14} />
             Add to Cart
           </button>
         </div>
+
+        {/* Badge */}
+        {product.badge && (
+          <span
+            className={`absolute top-2.5 left-2.5 text-white text-xs font-semibold px-2 py-1 rounded-full ${product.badgeColor || "bg-amber-500"}`}
+          >
+            {product.badge}
+          </span>
+        )}
       </div>
 
       {/* Info */}
@@ -140,9 +206,15 @@ function ProductCard({ product, mobile }) {
         {product.name}
       </p>
 
-      <p className="text-sm font-bold" style={{ color: "#6B7565" }}>
-        ₹{product.price}
+      <p className="text-sm font-bold mb-1.5" style={{ color: "#6B7565" }}>
+        ₹{product.price.toLocaleString()}
       </p>
-    </div>
+
+      {/* Rating */}
+      <div className="flex items-center gap-1">
+        <StarRating rating={product.rating} size="text-xs" />
+        <span className="text-xs text-gray-500">({product.reviews})</span>
+      </div>
+    </Link>
   );
 }
