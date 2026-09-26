@@ -1,12 +1,28 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { FiMail, FiLock, FiEye, FiEyeOff, FiArrowRight, FiCheckCircle } from "react-icons/fi";
+import { useRouter, useSearchParams } from "next/navigation";
+import { signIn, useSession, getSession } from "next-auth/react";
+import {
+  FiMail,
+  FiLock,
+  FiEye,
+  FiEyeOff,
+  FiArrowRight,
+  FiCheckCircle,
+  FiAlertCircle,
+} from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 import { FaHeart } from "react-icons/fa";
+import GoogleOneTap from "@/components/auth/GoogleOneTap";
 
-export default function LoginPage() {
+function LoginForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "";
+
+  const { data: session, status } = useSession();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [formData, setFormData] = useState({
@@ -14,16 +30,72 @@ export default function LoginPage() {
     password: "",
   });
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [success, setSuccess] = useState(false);
 
-  const handleSubmit = (e) => {
+  // Auto redirect if already authenticated
+  useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      if (session.user.role === "admin") {
+        router.push("/admin");
+      } else if (callbackUrl && !callbackUrl.includes("/dashboard") && !callbackUrl.includes("/admin")) {
+        router.push(callbackUrl);
+      } else {
+        router.push("/");
+      }
+    }
+  }, [status, session, router, callbackUrl]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage("");
     setLoading(true);
-    // Simulate login
-    setTimeout(() => {
-      setLoading(false);
+
+    try {
+      const res = await signIn("credentials", {
+        redirect: false,
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (res?.error) {
+        setErrorMessage(res.error);
+        setLoading(false);
+        return;
+      }
+
       setSuccess(true);
-    }, 1200);
+      const freshSession = await getSession();
+      setLoading(false);
+
+      setTimeout(() => {
+        if (freshSession?.user?.role === "admin") {
+          router.push("/admin");
+        } else if (callbackUrl && !callbackUrl.includes("/dashboard") && !callbackUrl.includes("/admin")) {
+          router.push(callbackUrl);
+        } else {
+          router.push("/");
+        }
+        router.refresh();
+      }, 700);
+    } catch (err) {
+      setErrorMessage(err.message || "An unexpected error occurred. Please try again.");
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setErrorMessage("");
+    setGoogleLoading(true);
+    try {
+      await signIn("google", {
+        callbackUrl: callbackUrl || "/",
+      });
+    } catch (err) {
+      setErrorMessage("Google Sign In failed. Please try again.");
+      setGoogleLoading(false);
+    }
   };
 
   return (
@@ -32,12 +104,21 @@ export default function LoginPage() {
       <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-sage-light/40 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-96 h-96 bg-[#3D5938]/10 rounded-full blur-3xl pointer-events-none" />
 
+      {/* Google One-Tap component */}
+      <GoogleOneTap
+        callbackUrl={callbackUrl}
+        onStart={() => setLoading(true)}
+        onError={(err) => {
+          setLoading(false);
+          setErrorMessage(err);
+        }}
+      />
+
       {/* Main Container / Modal Card */}
       <div className="relative w-full max-w-4xl bg-white/90 backdrop-blur-md rounded-3xl shadow-soft border border-sage-light/60 overflow-hidden grid grid-cols-1 md:grid-cols-12 z-10 transition-all duration-300">
         
         {/* Left Side: Brand & Visual Info */}
         <div className="md:col-span-5 bg-gradient-to-br from-cream-light via-cream to-sage-light/40 p-8 sm:p-10 flex flex-col justify-between items-center text-center border-b md:border-b-0 md:border-r border-sage-light/60 relative overflow-hidden">
-          {/* Subtle Background Pattern Circle */}
           <div className="absolute -top-16 -left-16 w-48 h-48 bg-white/40 rounded-full blur-xl pointer-events-none" />
           <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-sage/30 rounded-full blur-xl pointer-events-none" />
 
@@ -86,32 +167,35 @@ export default function LoginPage() {
           <div className="max-w-md mx-auto w-full">
             
             {/* Form Header */}
-            <div className="text-center md:text-left mb-8">
+            <div className="text-center md:text-left mb-6">
               <h2 className="font-heading text-2xl sm:text-3xl text-primary font-bold tracking-tight">
                 Welcome Back
               </h2>
               <p className="text-sm text-warm mt-1">
-                Enter your credentials to access your handmade orders & wishlist.
+                Sign in to your account, manage orders, and explore our collection.
               </p>
             </div>
 
+            {/* Error Notification */}
+            {errorMessage && (
+              <div className="mb-5 p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm flex items-start gap-2.5 animate-fade-in">
+                <FiAlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                <span>{errorMessage}</span>
+              </div>
+            )}
+
             {success ? (
               <div className="bg-cream-light border border-sage p-6 rounded-2xl text-center animate-fade-in">
-                <FiCheckCircle className="w-12 h-12 text-primary mx-auto mb-3" />
+                <FiCheckCircle className="w-12 h-12 text-primary mx-auto mb-3 animate-bounce" />
                 <h3 className="font-heading text-xl text-primary font-bold mb-1">Welcome back!</h3>
-                <p className="text-sm text-warm mb-4">You have successfully signed in.</p>
-                <Link
-                  href="/"
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition shadow-button"
-                >
-                  Go to Home <FiArrowRight />
-                </Link>
+                <p className="text-sm text-warm mb-4">You have successfully signed in. Redirecting...</p>
+                <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Email Field */}
                 <div>
-                  <label className="block text-xs font-semibold text-primary uppercase tracking-wider mb-2">
+                  <label className="block text-xs font-semibold text-primary uppercase tracking-wider mb-1.5">
                     Email Address
                   </label>
                   <div className="relative rounded-xl shadow-xs">
@@ -131,7 +215,7 @@ export default function LoginPage() {
 
                 {/* Password Field */}
                 <div>
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center justify-between mb-1.5">
                     <label className="block text-xs font-semibold text-primary uppercase tracking-wider">
                       Password
                     </label>
@@ -181,7 +265,7 @@ export default function LoginPage() {
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || googleLoading}
                   className="w-full py-3.5 px-4 bg-primary hover:bg-primary-dark active:scale-[0.99] text-white font-medium rounded-xl shadow-button hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm disabled:opacity-70 cursor-pointer"
                 >
                   {loading ? (
@@ -206,10 +290,18 @@ export default function LoginPage() {
                 {/* Social Login Button */}
                 <button
                   type="button"
-                  className="w-full py-3 px-4 border border-sage/60 hover:bg-cream-light/50 bg-white rounded-xl text-sm font-medium text-primary flex items-center justify-center gap-3 transition cursor-pointer shadow-xs hover:border-sage"
+                  onClick={handleGoogleSignIn}
+                  disabled={loading || googleLoading}
+                  className="w-full py-3 px-4 border border-sage/60 hover:bg-cream-light/50 bg-white rounded-xl text-sm font-medium text-primary flex items-center justify-center gap-3 transition cursor-pointer shadow-xs hover:border-sage disabled:opacity-70"
                 >
-                  <FcGoogle size={20} />
-                  <span>Continue with Google</span>
+                  {googleLoading ? (
+                    <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <FcGoogle size={20} />
+                      <span>Continue with Google</span>
+                    </>
+                  )}
                 </button>
 
                 {/* Sign up prompt */}
@@ -230,10 +322,18 @@ export default function LoginPage() {
 
       </div>
 
-      {/* Footer copyright subtle text */}
+      {/* Footer copyright */}
       <div className="absolute bottom-3 text-center w-full text-[11px] text-warm/70">
         © {new Date().getFullYear()} Crochet Alif. Handcrafted with love.
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#F5F1E8] flex items-center justify-center"><div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+      <LoginForm />
+    </Suspense>
   );
 }

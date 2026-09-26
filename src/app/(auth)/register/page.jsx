@@ -2,11 +2,24 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { FiUser, FiMail, FiLock, FiEye, FiEyeOff, FiArrowRight, FiCheckCircle } from "react-icons/fi";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
+import {
+  FiUser,
+  FiMail,
+  FiLock,
+  FiEye,
+  FiEyeOff,
+  FiArrowRight,
+  FiCheckCircle,
+  FiAlertCircle,
+} from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 import { FaHeart } from "react-icons/fa";
+import GoogleOneTap from "@/components/auth/GoogleOneTap";
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [formData, setFormData] = useState({
@@ -15,16 +28,80 @@ export default function RegisterPage() {
     password: "",
   });
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [success, setSuccess] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage("");
+
+    if (!agreeTerms) {
+      setErrorMessage("Please agree to the Terms of Service and Privacy Policy.");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setErrorMessage("Password must be at least 6 characters long.");
+      return;
+    }
+
     setLoading(true);
-    // Simulate signup
-    setTimeout(() => {
-      setLoading(false);
+
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setErrorMessage(data.error || "Failed to create account. Please try again.");
+        setLoading(false);
+        return;
+      }
+
       setSuccess(true);
-    }, 1200);
+      setLoading(false);
+
+      // Automatically sign the user in with credentials
+      setTimeout(async () => {
+        const loginRes = await signIn("credentials", {
+          redirect: false,
+          email: formData.email,
+          password: formData.password,
+        });
+
+        if (!loginRes?.error) {
+          router.push("/");
+          router.refresh();
+        } else {
+          router.push("/login");
+        }
+      }, 1500);
+    } catch (err) {
+      setErrorMessage(err.message || "Something went wrong. Please try again.");
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignUp = async () => {
+    setErrorMessage("");
+    setGoogleLoading(true);
+    try {
+      await signIn("google", {
+        callbackUrl: "/dashboard",
+      });
+    } catch (err) {
+      setErrorMessage("Google Sign Up failed. Please try again.");
+      setGoogleLoading(false);
+    }
   };
 
   return (
@@ -33,12 +110,20 @@ export default function RegisterPage() {
       <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-sage-light/40 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-96 h-96 bg-[#3D5938]/10 rounded-full blur-3xl pointer-events-none" />
 
+      {/* Google One-Tap */}
+      <GoogleOneTap
+        onStart={() => setLoading(true)}
+        onError={(err) => {
+          setLoading(false);
+          setErrorMessage(err);
+        }}
+      />
+
       {/* Main Container / Modal Card */}
       <div className="relative w-full max-w-4xl bg-white/90 backdrop-blur-md rounded-3xl shadow-soft border border-sage-light/60 overflow-hidden grid grid-cols-1 md:grid-cols-12 z-10 transition-all duration-300">
         
         {/* Left Side: Brand & Visual Info */}
         <div className="md:col-span-5 bg-gradient-to-br from-cream-light via-cream to-sage-light/40 p-8 sm:p-10 flex flex-col justify-between items-center text-center border-b md:border-b-0 md:border-r border-sage-light/60 relative overflow-hidden">
-          {/* Subtle Background Pattern Circle */}
           <div className="absolute -top-16 -left-16 w-48 h-48 bg-white/40 rounded-full blur-xl pointer-events-none" />
           <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-sage/30 rounded-full blur-xl pointer-events-none" />
 
@@ -70,7 +155,7 @@ export default function RegisterPage() {
                 "Start your journey into authentic handmade artistry."
               </p>
               <p className="text-xs text-warm">
-                Unlock exclusive launches, custom orders & saved wishlists.
+                Unlock exclusive launches, custom orders & 100 bonus Stitch Points!
               </p>
             </div>
           </div>
@@ -87,32 +172,37 @@ export default function RegisterPage() {
           <div className="max-w-md mx-auto w-full">
             
             {/* Form Header */}
-            <div className="text-center md:text-left mb-8">
+            <div className="text-center md:text-left mb-6">
               <h2 className="font-heading text-2xl sm:text-3xl text-primary font-bold tracking-tight">
                 Create an Account
               </h2>
               <p className="text-sm text-warm mt-1">
-                Join our crochet family and enjoy personalized orders & updates.
+                Join our crochet community and receive 100 welcome reward points.
               </p>
             </div>
 
+            {/* Error Notification */}
+            {errorMessage && (
+              <div className="mb-4 p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm flex items-start gap-2.5 animate-fade-in">
+                <FiAlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                <span>{errorMessage}</span>
+              </div>
+            )}
+
             {success ? (
               <div className="bg-cream-light border border-sage p-6 rounded-2xl text-center animate-fade-in">
-                <FiCheckCircle className="w-12 h-12 text-primary mx-auto mb-3" />
+                <FiCheckCircle className="w-12 h-12 text-primary mx-auto mb-3 animate-bounce" />
                 <h3 className="font-heading text-xl text-primary font-bold mb-1">Account Created!</h3>
-                <p className="text-sm text-warm mb-4">Your account is ready. Welcome to Crochet Alif!</p>
-                <Link
-                  href="/login"
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition shadow-button"
-                >
-                  Proceed to Sign In <FiArrowRight />
-                </Link>
+                <p className="text-sm text-warm mb-3">
+                  Welcome to Crochet Alif! You earned 100 Stitch Points. Logging you in...
+                </p>
+                <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Full Name Field */}
                 <div>
-                  <label className="block text-xs font-semibold text-primary uppercase tracking-wider mb-2">
+                  <label className="block text-xs font-semibold text-primary uppercase tracking-wider mb-1.5">
                     Full Name
                   </label>
                   <div className="relative rounded-xl shadow-xs">
@@ -132,7 +222,7 @@ export default function RegisterPage() {
 
                 {/* Email Field */}
                 <div>
-                  <label className="block text-xs font-semibold text-primary uppercase tracking-wider mb-2">
+                  <label className="block text-xs font-semibold text-primary uppercase tracking-wider mb-1.5">
                     Email Address
                   </label>
                   <div className="relative rounded-xl shadow-xs">
@@ -152,7 +242,7 @@ export default function RegisterPage() {
 
                 {/* Password Field */}
                 <div>
-                  <label className="block text-xs font-semibold text-primary uppercase tracking-wider mb-2">
+                  <label className="block text-xs font-semibold text-primary uppercase tracking-wider mb-1.5">
                     Password
                   </label>
                   <div className="relative rounded-xl shadow-xs">
@@ -164,7 +254,7 @@ export default function RegisterPage() {
                       required
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      placeholder="Create a secure password"
+                      placeholder="At least 6 characters"
                       className="w-full pl-10 pr-10 py-3 bg-cream-light/40 border border-sage/60 rounded-xl text-sm text-primary placeholder-muted/70 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                     />
                     <button
@@ -203,7 +293,7 @@ export default function RegisterPage() {
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || googleLoading}
                   className="w-full mt-2 py-3.5 px-4 bg-primary hover:bg-primary-dark active:scale-[0.99] text-white font-medium rounded-xl shadow-button hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm disabled:opacity-70 cursor-pointer"
                 >
                   {loading ? (
@@ -228,10 +318,18 @@ export default function RegisterPage() {
                 {/* Social Signup Button */}
                 <button
                   type="button"
-                  className="w-full py-3 px-4 border border-sage/60 hover:bg-cream-light/50 bg-white rounded-xl text-sm font-medium text-primary flex items-center justify-center gap-3 transition cursor-pointer shadow-xs hover:border-sage"
+                  onClick={handleGoogleSignUp}
+                  disabled={loading || googleLoading}
+                  className="w-full py-3 px-4 border border-sage/60 hover:bg-cream-light/50 bg-white rounded-xl text-sm font-medium text-primary flex items-center justify-center gap-3 transition cursor-pointer shadow-xs hover:border-sage disabled:opacity-70"
                 >
-                  <FcGoogle size={20} />
-                  <span>Sign up with Google</span>
+                  {googleLoading ? (
+                    <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <FcGoogle size={20} />
+                      <span>Sign up with Google</span>
+                    </>
+                  )}
                 </button>
 
                 {/* Sign in prompt */}
@@ -252,7 +350,7 @@ export default function RegisterPage() {
 
       </div>
 
-      {/* Footer copyright subtle text */}
+      {/* Footer copyright */}
       <div className="absolute bottom-3 text-center w-full text-[11px] text-warm/70">
         © {new Date().getFullYear()} Crochet Alif. Handcrafted with love.
       </div>

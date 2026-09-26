@@ -28,8 +28,10 @@ import {
   FiLogOut
 } from "react-icons/fi";
 import { FaYarn } from "react-icons/fa6";
+import { useSession, signOut } from "next-auth/react";
 
 export default function DashboardLayout({ children }) {
+  const { data: session } = useSession();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -165,22 +167,43 @@ export default function DashboardLayout({ children }) {
 
         {/* BOTTOM USER PROFILE CARD */}
         <div className="pt-4 border-t border-[#213828] flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-[#A8CF45] text-[#112316] font-bold flex items-center justify-center text-xs shadow-xs">
-              AA
-            </div>
+          <div className="flex items-center gap-3 overflow-hidden">
+            {session?.user?.avatar ? (
+              <img
+                src={session.user.avatar}
+                alt="Admin"
+                className="w-9 h-9 rounded-full object-cover shadow-xs border border-[#3D5938]"
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-[#A8CF45] text-[#112316] font-bold flex items-center justify-center text-xs shadow-xs shrink-0">
+                {session?.user?.name ? session.user.name.charAt(0).toUpperCase() : "A"}
+              </div>
+            )}
             <div className="overflow-hidden">
-              <p className="text-xs font-bold text-white truncate">Alif Admin</p>
-              <p className="text-[11px] text-[#6E8F6A] truncate">artisan@crochetalif.com</p>
+              <p className="text-xs font-bold text-white truncate">
+                {session?.user?.name || "Admin"}
+              </p>
+              <p className="text-[11px] text-[#6E8F6A] truncate">
+                {session?.user?.email || "admin@crochetalif.com"}
+              </p>
             </div>
           </div>
-          <Link
-            href="/"
-            title="View live website"
-            className="p-2 rounded-lg hover:bg-[#1B3321] text-[#73946E] hover:text-white transition"
-          >
-            <FiHome size={16} />
-          </Link>
+          <div className="flex items-center gap-1">
+            <Link
+              href="/"
+              title="View live website"
+              className="p-2 rounded-lg hover:bg-[#1B3321] text-[#73946E] hover:text-white transition"
+            >
+              <FiHome size={16} />
+            </Link>
+            <button
+              onClick={() => signOut({ callbackUrl: "/login" })}
+              title="Sign Out"
+              className="p-2 rounded-lg hover:bg-red-950/40 text-red-400 hover:text-red-300 transition cursor-pointer"
+            >
+              <FiLogOut size={16} />
+            </button>
+          </div>
         </div>
       </aside>
 

@@ -13,10 +13,38 @@ const UserSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
       trim: true,
+      index: true,
     },
     password: {
       type: String,
       select: false, // Hidden by default on queries
+    },
+    authProvider: {
+      type: String,
+      enum: ["credentials", "google", "both"],
+      default: "credentials",
+    },
+    googleId: {
+      type: String,
+      sparse: true,
+    },
+    role: {
+      type: String,
+      enum: ["customer", "admin", "artisan"],
+      default: "customer",
+      index: true,
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    lastLogin: {
+      type: Date,
+      default: Date.now,
     },
     phone: {
       type: String,
@@ -29,11 +57,6 @@ const UserSchema = new mongoose.Schema(
     bio: {
       type: String,
       default: "Crochet art enthusiast & patron.",
-    },
-    role: {
-      type: String,
-      enum: ["customer", "admin", "artisan"],
-      default: "customer",
     },
     // Stitch Loyalty Rewards Program
     stitchPoints: {
