@@ -1,12 +1,14 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { FiCalendar, FiMenu, FiX, FiShoppingCart } from "react-icons/fi";
+import { FiCalendar, FiMenu, FiX, FiShoppingCart, FiUser, FiHeart } from "react-icons/fi";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/components/context/CartContext";
+import { useWishlist } from "@/components/context/WishlistContext";
 
 export default function Header() {
   const { cartCount } = useCart();
+  const { wishlistCount } = useWishlist();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navLinks = [
@@ -88,6 +90,60 @@ export default function Header() {
             <FiCalendar size={14} />
           </Link>
 
+          {/* Wishlist button */}
+          <Link
+            href="/wishlist"
+            className="
+              w-12
+              h-12
+              rounded-full
+              flex
+              items-center
+              justify-center
+              relative
+              transition
+              hover:bg-white
+            "
+            style={{
+              color: "#3D5938",
+              border: "1px solid rgba(61,89,56,0.15)",
+              backgroundColor: "rgba(255,255,255,0.8)",
+              backdropFilter: "blur(4px)",
+            }}
+            title="My Wishlist"
+          >
+            <FiHeart size={18} />
+            {wishlistCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-sage text-primary font-bold text-[10px] rounded-full flex items-center justify-center border border-white">
+                {wishlistCount}
+              </span>
+            )}
+          </Link>
+
+          {/* Account / Profile button */}
+          <Link
+            href="/profile"
+            className="
+              w-12
+              h-12
+              rounded-full
+              flex
+              items-center
+              justify-center
+              transition
+              hover:bg-white
+            "
+            style={{
+              color: "#3D5938",
+              border: "1px solid rgba(61,89,56,0.15)",
+              backgroundColor: "rgba(255,255,255,0.8)",
+              backdropFilter: "blur(4px)",
+            }}
+            title="My Profile / Orders"
+          >
+            <FiUser size={18} />
+          </Link>
+
           {/* Cart icon - always visible */}
           <Link
   href="/cart"
@@ -99,6 +155,8 @@ export default function Header() {
     items-center
     justify-center
     relative
+    transition
+    hover:bg-white
   "
   style={{
     color: "#3D5938",
@@ -111,7 +169,7 @@ export default function Header() {
 
   {/* LIVE CART BADGE */}
   {cartCount > 0 && (
-    <span className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-[10px] rounded-full flex items-center justify-center text-[10px] font-semibold">
+    <span className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-[10px] rounded-full flex items-center justify-center font-semibold">
       {cartCount}
     </span>
   )}
@@ -162,6 +220,30 @@ export default function Header() {
                 </li>
               );
             })}
+            <li className="border-b border-gray-100">
+              <Link
+                href="/wishlist"
+                onClick={() => setMenuOpen(false)}
+                className={`block px-6 py-4 text-[15px] transition-colors ${
+                  pathname === "/wishlist" ? "font-semibold bg-[#f0f5ee]" : ""
+                }`}
+                style={{ color: "#3D5938" }}
+              >
+                My Wishlist {wishlistCount > 0 && `(${wishlistCount})`}
+              </Link>
+            </li>
+            <li className="border-b border-gray-100">
+              <Link
+                href="/profile"
+                onClick={() => setMenuOpen(false)}
+                className={`block px-6 py-4 text-[15px] transition-colors ${
+                  pathname === "/profile" ? "font-semibold bg-[#f0f5ee]" : ""
+                }`}
+                style={{ color: "#3D5938" }}
+              >
+                My Profile & Orders
+              </Link>
+            </li>
             <li className="px-6 py-4">
               <button
                 onClick={() => setMenuOpen(false)}

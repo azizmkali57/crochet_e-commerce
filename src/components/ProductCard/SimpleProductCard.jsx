@@ -9,6 +9,7 @@ import Link from "next/link";
 import { FiHeart, FiShoppingCart } from "react-icons/fi";
 import { BsStarFill } from "react-icons/bs";
 import { useCart } from "@/components/context/CartContext";
+import { useWishlist } from "@/components/context/WishlistContext";
 
 function StarRating({ rating, size = "text-xs" }) {
   return (
@@ -31,6 +32,9 @@ export default function SimpleProductCard({
   showRating = true,
 }) {
   const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
+  const isFavorited = isInWishlist(product.id || product.slug);
+
   const discountPercent = product.originalPrice
     ? Math.round(
         ((product.originalPrice - product.price) / product.originalPrice) * 100,
@@ -43,11 +47,11 @@ export default function SimpleProductCard({
       className="group cursor-pointer h-full flex flex-col"
     >
       {/* Image Container */}
-      <div className="relative rounded-lg overflow-hidden bg-gray-100 aspect-square mb-3 shadow-sm group-hover:shadow-md transition-shadow">
+      <div className="relative rounded-2xl overflow-hidden bg-cream aspect-square mb-3 shadow-xs group-hover:shadow-md transition-shadow border border-sage/40">
         {/* Badge */}
         {showBadge && product.badge && (
           <div
-            className={`absolute top-2 left-2 text-white text-xs font-semibold px-2.5 py-1 rounded-full ${product.badgeColor} z-10`}
+            className={`absolute top-2.5 left-2.5 text-white text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${product.badgeColor} z-10`}
           >
             {product.badge}
           </div>
@@ -55,14 +59,14 @@ export default function SimpleProductCard({
 
         {/* Discount Badge */}
         {discountPercent > 0 && (
-          <div className="absolute top-2 right-2 text-xs font-bold text-white bg-rose-500 px-2 py-1 rounded-full z-10">
+          <div className="absolute top-2.5 right-2.5 text-[11px] font-bold text-white bg-rose-500 px-2 py-0.5 rounded-full z-10 shadow-xs">
             -{discountPercent}%
           </div>
         )}
 
         {/* Image */}
         <img
-          src={product.images[0]}
+          src={product.images?.[0] || product.img || "/images/Granny_Sweater.png"}
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           onError={(e) => {
@@ -77,10 +81,24 @@ export default function SimpleProductCard({
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
+            toggleWishlist({
+              id: product.id,
+              slug: product.slug,
+              name: product.name,
+              price: product.price,
+              originalPrice: product.originalPrice,
+              images: product.images || [product.img],
+              image: product.images?.[0] || product.img,
+              badge: product.badge,
+              badgeColor: product.badgeColor,
+            });
           }}
-          className="absolute bottom-2 right-2 w-9 h-9 rounded-full bg-white shadow-sm hover:bg-gray-100 flex items-center justify-center transition-colors"
+          className={`absolute bottom-2.5 right-2.5 w-9 h-9 rounded-full bg-white/95 shadow-sm hover:bg-white flex items-center justify-center transition-all ${
+            isFavorited ? "text-rose-500 scale-105" : "text-gray-400 hover:text-rose-500"
+          }`}
+          title={isFavorited ? "Remove from wishlist" : "Add to wishlist"}
         >
-          <FiHeart className="text-gray-400 text-sm" />
+          <FiHeart className={`text-sm transition ${isFavorited ? "fill-rose-500 text-rose-500" : ""}`} />
         </button>
       </div>
 

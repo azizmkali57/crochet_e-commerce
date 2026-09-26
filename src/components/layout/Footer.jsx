@@ -8,9 +8,10 @@ import Link from "next/link";
 export default function Footer() {
   const quickLinks = [
     { name: "Collections", href: "/collection" },
-    { name: "Custom Orders", href: "/contact" },
-    { name: "About Us", href: "/about" },
-    { name: "Contact", href: "/contact" },
+    { name: "Custom Studio", href: "/custom-order" },
+    { name: "Care & Washing Guide", href: "/care-guide" },
+    { name: "Customer Reviews", href: "/reviews" },
+    { name: "About Us", href: "/about-us" },
   ];
 
   const helpLinks = [
