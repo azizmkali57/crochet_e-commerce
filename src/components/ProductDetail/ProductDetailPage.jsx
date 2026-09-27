@@ -1,6 +1,4 @@
-"use client";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   FiHeart,
@@ -35,31 +33,33 @@ function StarRating({ rating, size = "text-sm" }) {
 }
 
 // ---------- IMAGE GALLERY COMPONENT ----------
-function ImageGallery({ images, productName }) {
+function ImageGallery({ images = [], productName }) {
   const [activeIndex, setActiveIndex] = useState(0);
 
+  const galleryImages = images && images.length > 0 ? images : ["/images/Granny_Sweater.png"];
+
   const goPrev = () =>
-    setActiveIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    setActiveIndex((prev) => (prev === 0 ? galleryImages.length - 1 : prev - 1));
   const goNext = () =>
-    setActiveIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    setActiveIndex((prev) => (prev === galleryImages.length - 1 ? 0 : prev + 1));
 
   return (
     <div className="w-full">
       {/* Main image */}
       <div className="relative rounded-2xl overflow-hidden bg-gray-50 aspect-square mb-4 group">
         <img
-          src={images[activeIndex]}
+          src={galleryImages[activeIndex] || galleryImages[0]}
           alt={`${productName} - image ${activeIndex + 1}`}
           className="w-full h-full object-cover"
           onError={(e) => {
             e.target.src = `https://placehold.co/600x600/e8f0e0/4a6741?text=${encodeURIComponent(
-              productName,
+              productName || "Product",
             )}`;
           }}
         />
 
         {/* Prev/Next arrows */}
-        {images.length > 1 && (
+        {galleryImages.length > 1 && (
           <>
             <button
               onClick={goPrev}
@@ -78,13 +78,13 @@ function ImageGallery({ images, productName }) {
 
         {/* Image counter */}
         <div className="absolute bottom-3 right-3 bg-black/50 text-white text-xs font-medium px-2.5 py-1 rounded-full">
-          {activeIndex + 1} / {images.length}
+          {activeIndex + 1} / {galleryImages.length}
         </div>
       </div>
 
       {/* Thumbnails */}
       <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 sm:gap-3">
-        {images.map((img, i) => (
+        {galleryImages.map((img, i) => (
           <button
             key={i}
             onClick={() => setActiveIndex(i)}
@@ -111,10 +111,12 @@ function ImageGallery({ images, productName }) {
 
 // ---------- RELATED PRODUCT CARD COMPONENT ----------
 function RelatedProductCard({ product }) {
+  const prodImg = product.images && product.images.length > 0 ? product.images[0] : product.img || "/images/Granny_Sweater.png";
+
   return (
     <Link
       href={`/collection/${product.slug}`}
-      className={`relative rounded-2xl ${product.bg} overflow-hidden group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300 flex-shrink-0 w-[180px] sm:w-[220px]`}
+      className={`relative rounded-2xl ${product.bg || "bg-gradient-to-br from-green-50 to-emerald-100"} overflow-hidden group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300 flex-shrink-0 w-[180px] sm:w-[220px]`}
     >
       <button
         onClick={(e) => e.preventDefault()}
@@ -122,9 +124,9 @@ function RelatedProductCard({ product }) {
       >
         <FiHeart className="text-sm text-gray-400" />
       </button>
-      <div className="aspect-square overflow-hidden">
+      <div className="aspect-square overflow-hidden bg-gray-100">
         <img
-          src={product.img}
+          src={prodImg}
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           onError={(e) => {
@@ -139,12 +141,12 @@ function RelatedProductCard({ product }) {
           {product.name}
         </p>
         <p className="text-sm font-bold text-[#4a6741] mb-1.5">
-          ₹{product.price.toLocaleString()}
+          ₹{Number(product.price).toLocaleString()}
         </p>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1">
-            <StarRating rating={product.rating} size="text-xs" />
-            <span className="text-xs text-gray-500">({product.reviews})</span>
+            <StarRating rating={product.rating || 5.0} size="text-xs" />
+            <span className="text-xs text-gray-500">({product.reviewsCount || product.reviews || 0})</span>
           </div>
           <button
             onClick={(e) => e.preventDefault()}
@@ -161,12 +163,46 @@ function RelatedProductCard({ product }) {
 // ---------- MAIN PRODUCT DETAIL COMPONENT ----------
 export default function ProductDetailPage({ slug }) {
   const { addToCart } = useCart();
-  const product = getProductBySlug(slug);
-  const relatedProducts = getRelatedProducts(slug);
+  const fallbackProduct = getProductBySlug(slug) || {
+    name: "Crochet Handcrafted Piece",
+    slug,
+    price: 1299,
+    images: ["/images/Granny_Sweater.png"],
+    description: "Delicate handcrafted crochet piece made with love.",
+    details: ["100% premium cotton yarn"],
+    colors: ["#3D5938"],
+  };
+
+  const [product, setProduct] = useState(fallbackProduct);
+  const [relatedProducts, setRelatedProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState(0);
   const [wishlisted, setWishlisted] = useState(false);
+
+  useEffect(() => {
+    async function loadProduct() {
+      if (!slug) return;
+      try {
+        const res = await fetch(`/api/products/${slug}`);
+        const json = await res.json();
+        if (json.success && json.data) {
+          setProduct(json.data);
+          if (json.relatedProducts && json.relatedProducts.length > 0) {
+            setRelatedProducts(json.relatedProducts);
+          } else {
+            setRelatedProducts(getRelatedProducts(slug) || []);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load product by slug:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadProduct();
+  }, [slug]);
 
   const discountPercent = product.originalPrice
     ? Math.round(

@@ -1,15 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { FiLock, FiEye, FiEyeOff, FiArrowRight, FiCheckCircle, FiShield } from "react-icons/fi";
 import { FaHeart } from "react-icons/fa";
 
 export default function ResetPasswordPage() {
+  const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
-    code: "",
+    code: searchParams?.get("code") || "",
+    token: searchParams?.get("token") || "",
+    email: searchParams?.get("email") || "",
     password: "",
     confirmPassword: "",
   });
@@ -17,19 +21,57 @@ export default function ResetPasswordPage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    const codeParam = searchParams?.get("code");
+    const tokenParam = searchParams?.get("token");
+    const emailParam = searchParams?.get("email");
+    if (codeParam || tokenParam || emailParam) {
+      setFormData((prev) => ({
+        ...prev,
+        code: codeParam || prev.code,
+        token: tokenParam || prev.token,
+        email: emailParam || prev.email,
+      }));
+    }
+  }, [searchParams]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match!");
       return;
     }
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters long.");
+      return;
+    }
+
     setError("");
     setLoading(true);
-    // Simulate reset
-    setTimeout(() => {
-      setLoading(false);
+
+    try {
+      const res = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: formData.code,
+          token: formData.token,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to reset password.");
+      }
+
       setSuccess(true);
-    }, 1200);
+    } catch (err) {
+      setError(err.message || "Failed to update password. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

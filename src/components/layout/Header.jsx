@@ -47,21 +47,26 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="absolute py-6 top-0 left-0 right-0 z-50">
+    <header className="absolute py-5 top-0 left-0 right-0 z-50">
       <div className="max-w-[1500px] mx-auto px-6 lg:px-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group">
           <img
             src="/images/main_logo.png"
             alt="Crochet Alif"
-            className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-full shadow-xs transition-transform duration-300 group-hover:scale-105"
+            className="w-13 h-13 sm:w-14 sm:h-14 object-cover rounded-full shadow-xs transition-transform duration-300 group-hover:scale-105"
           />
-          <span
-            className="font-script text-[30px] sm:text-[34px]"
-            style={{ color: "#3D5938" }}
-          >
-            Crochet Alif
-          </span>
+          <div className="flex flex-col">
+            <span
+              className="font-script text-[26px] sm:text-[30px] leading-tight"
+              style={{ color: "#2d4a22" }}
+            >
+              Crochet Alif
+            </span>
+            <span className="text-[9px] tracking-[0.2em] uppercase font-bold text-[#6E8F6A] -mt-1">
+              Handcrafted with Love
+            </span>
+          </div>
         </Link>
 
         {/* Desktop Nav */}

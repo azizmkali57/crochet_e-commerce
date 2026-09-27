@@ -25,7 +25,8 @@ import {
   FiCheckCircle,
   FiClock,
   FiHome,
-  FiLogOut
+  FiLogOut,
+  FiLayers
 } from "react-icons/fi";
 import { FaYarn } from "react-icons/fa6";
 import { useSession, signOut } from "next-auth/react";
@@ -37,10 +38,11 @@ export default function DashboardLayout({ children }) {
 
   const menuItems = [
     { label: "Overview", href: "/dashboard", icon: FiGrid },
-    { label: "Statistics", href: "/dashboard/analytics", icon: FiBarChart2 },
-    { label: "Customers", href: "/dashboard/customers", icon: FiUsers },
+    { label: "Categories", href: "/dashboard/categories", icon: FiLayers },
     { label: "Product", href: "/dashboard/products", icon: FiBox, count: 24 },
     { label: "Orders", href: "/dashboard/orders", icon: FiShoppingBag, badge: "12" },
+    { label: "Customers", href: "/dashboard/customers", icon: FiUsers },
+    { label: "Statistics", href: "/dashboard/analytics", icon: FiBarChart2 },
   ];
 
   const generalItems = [

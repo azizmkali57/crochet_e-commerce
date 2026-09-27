@@ -13,6 +13,7 @@ const ProductSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
       trim: true,
+      index: true,
     },
     price: {
       type: Number,
@@ -26,14 +27,12 @@ const ProductSchema = new mongoose.Schema(
     category: {
       type: String,
       required: true,
-      enum: [
-        "Handbags & Pouches",
-        "Wearables & Sweaters",
-        "Soft Toys & Amigurumi",
-        "Home Decor & Wall Hangings",
-        "Accessories & Wallets",
-      ],
-      default: "Handbags & Pouches",
+      index: true,
+    },
+    categorySlug: {
+      type: String,
+      index: true,
+      default: "bags",
     },
     description: {
       type: String,
@@ -42,7 +41,7 @@ const ProductSchema = new mongoose.Schema(
     images: {
       type: [String],
       required: true,
-      default: ["/images/Granny_Sweater.png"],
+      default: [],
     },
     // Craftsmanship Details
     details: {
@@ -67,7 +66,6 @@ const ProductSchema = new mongoose.Schema(
     },
     badge: {
       type: String,
-      enum: ["Bestseller", "New Launch", "Limited Edition", "Artisan Pick", null],
       default: null,
     },
     badgeColor: {
@@ -95,6 +93,11 @@ const ProductSchema = new mongoose.Schema(
     isFeatured: {
       type: Boolean,
       default: false,
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+      index: true,
     },
   },
   {

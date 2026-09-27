@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import connectToDatabase from "@/lib/mongodb";
 import User from "@/models/User";
+import { sendWelcomeEmail } from "@/lib/email";
 
 export async function POST(req) {
   try {
@@ -49,6 +50,14 @@ export async function POST(req) {
       isActive: true,
       isEmailVerified: false,
       lastLogin: new Date(),
+    });
+
+    // Send Welcome Email asynchronously
+    sendWelcomeEmail({
+      to: newUser.email,
+      name: newUser.name,
+    }).catch((mailErr) => {
+      console.warn("Failed to send welcome email:", mailErr.message);
     });
 
     return NextResponse.json(

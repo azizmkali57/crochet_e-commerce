@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import Header from "@/components/layout/Header";
 import {
   FiShoppingCart,
@@ -253,14 +254,18 @@ function StarRating({ rating }) {
 
 // Card for tall layout (col-span-1, row-span-2) — image takes ~65%, info below
 function TallProductCard({ product, wishlist, toggleWishlist }) {
+  if (!product) return null;
+  const prodImg = product.images && product.images.length > 0 ? product.images[0] : product.img || "/images/Granny_Sweater.png";
+  const prodId = product._id || product.id;
+
   return (
     <Link
       href={`/collection/${product.slug}`}
-      className={`relative rounded-2xl ${product.bg} overflow-hidden group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300 h-full flex flex-col`}
+      className={`relative rounded-2xl ${product.bg || "bg-gradient-to-br from-green-50 to-emerald-100"} overflow-hidden group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300 h-full flex flex-col`}
     >
       {product.badge && (
         <span
-          className={`absolute top-3 left-3 z-10 text-white text-xs font-semibold px-2.5 py-1 rounded-full ${product.badgeColor}`}
+          className={`absolute top-3 left-3 z-10 text-white text-xs font-semibold px-2.5 py-1 rounded-full ${product.badgeColor || "bg-amber-500"}`}
         >
           {product.badge}
         </span>
@@ -268,18 +273,18 @@ function TallProductCard({ product, wishlist, toggleWishlist }) {
       <button
         onClick={(e) => {
           e.preventDefault();
-          toggleWishlist(product.id);
+          toggleWishlist(prodId);
         }}
         className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white transition-colors"
       >
         <FiHeart
-          className={`text-sm ${wishlist.includes(product.id) ? "fill-rose-500 text-rose-500" : "text-gray-400"}`}
+          className={`text-sm ${wishlist.includes(prodId) ? "fill-rose-500 text-rose-500" : "text-gray-400"}`}
         />
       </button>
       {/* Image takes most of the card height */}
-      <div className="flex-1 overflow-hidden min-h-0">
+      <div className="flex-1 overflow-hidden min-h-0 bg-gray-100">
         <img
-          src={product.img}
+          src={prodImg}
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           style={{ minHeight: "200px" }}
@@ -294,12 +299,12 @@ function TallProductCard({ product, wishlist, toggleWishlist }) {
           {product.name}
         </p>
         <p className="text-base font-bold text-[#4a6741] mb-1.5">
-          ₹{product.price.toLocaleString()}
+          ₹{Number(product.price).toLocaleString()}
         </p>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <StarRating rating={product.rating} />
-            <span className="text-xs text-gray-500">({product.reviews})</span>
+            <StarRating rating={product.rating || 5.0} />
+            <span className="text-xs text-gray-500">({product.reviewsCount || product.reviews || 0})</span>
           </div>
           <button
             onClick={(e) => e.preventDefault()}
@@ -315,14 +320,18 @@ function TallProductCard({ product, wishlist, toggleWishlist }) {
 
 // Card for small layout (col-span-1, row-span-1)
 function SmallProductCard({ product, wishlist, toggleWishlist }) {
+  if (!product) return null;
+  const prodImg = product.images && product.images.length > 0 ? product.images[0] : product.img || "/images/Granny_Sweater.png";
+  const prodId = product._id || product.id;
+
   return (
     <Link
       href={`/collection/${product.slug}`}
-      className={`relative rounded-2xl ${product.bg} overflow-hidden group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300 block`}
+      className={`relative rounded-2xl ${product.bg || "bg-gradient-to-br from-amber-50 to-orange-100"} overflow-hidden group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300 block`}
     >
       {product.badge && (
         <span
-          className={`absolute top-2.5 left-2.5 z-10 text-white text-xs font-semibold px-2.5 py-1 rounded-full ${product.badgeColor}`}
+          className={`absolute top-2.5 left-2.5 z-10 text-white text-xs font-semibold px-2.5 py-1 rounded-full ${product.badgeColor || "bg-amber-500"}`}
         >
           {product.badge}
         </span>
@@ -330,17 +339,17 @@ function SmallProductCard({ product, wishlist, toggleWishlist }) {
       <button
         onClick={(e) => {
           e.preventDefault();
-          toggleWishlist(product.id);
+          toggleWishlist(prodId);
         }}
         className="absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white transition-colors"
       >
         <FiHeart
-          className={`text-xs ${wishlist.includes(product.id) ? "fill-rose-500 text-rose-500" : "text-gray-400"}`}
+          className={`text-xs ${wishlist.includes(prodId) ? "fill-rose-500 text-rose-500" : "text-gray-400"}`}
         />
       </button>
-      <div className="aspect-square overflow-hidden">
+      <div className="aspect-square overflow-hidden bg-gray-100">
         <img
-          src={product.img}
+          src={prodImg}
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           onError={(e) => {
@@ -353,12 +362,12 @@ function SmallProductCard({ product, wishlist, toggleWishlist }) {
           {product.name}
         </p>
         <p className="text-sm font-bold text-[#4a6741] mb-1.5">
-          ₹{product.price.toLocaleString()}
+          ₹{Number(product.price).toLocaleString()}
         </p>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1">
-            <StarRating rating={product.rating} />
-            <span className="text-xs text-gray-500">({product.reviews})</span>
+            <StarRating rating={product.rating || 5.0} />
+            <span className="text-xs text-gray-500">({product.reviewsCount || product.reviews || 0})</span>
           </div>
           <button
             onClick={(e) => e.preventDefault()}
@@ -374,14 +383,18 @@ function SmallProductCard({ product, wishlist, toggleWishlist }) {
 
 // Card for wide-tall layout (col-span-2, row-span-2) — potli bag
 function WideTallCard({ product, wishlist, toggleWishlist }) {
+  if (!product) return null;
+  const prodImg = product.images && product.images.length > 0 ? product.images[0] : product.img || "/images/strawberry_Backpack.png";
+  const prodId = product._id || product.id;
+
   return (
     <Link
       href={`/collection/${product.slug}`}
-      className={`relative rounded-2xl ${product.bg} overflow-hidden group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300 h-full flex flex-col`}
+      className={`relative rounded-2xl ${product.bg || "bg-gradient-to-br from-pink-50 to-rose-100"} overflow-hidden group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300 h-full flex flex-col`}
     >
       {product.badge && (
         <span
-          className={`absolute top-3 left-3 z-10 text-white text-xs font-semibold px-2.5 py-1 rounded-full ${product.badgeColor}`}
+          className={`absolute top-3 left-3 z-10 text-white text-xs font-semibold px-2.5 py-1 rounded-full ${product.badgeColor || "bg-emerald-500"}`}
         >
           {product.badge}
         </span>
@@ -389,17 +402,17 @@ function WideTallCard({ product, wishlist, toggleWishlist }) {
       <button
         onClick={(e) => {
           e.preventDefault();
-          toggleWishlist(product.id);
+          toggleWishlist(prodId);
         }}
         className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white transition-colors"
       >
         <FiHeart
-          className={`text-sm ${wishlist.includes(product.id) ? "fill-rose-500 text-rose-500" : "text-gray-400"}`}
+          className={`text-sm ${wishlist.includes(prodId) ? "fill-rose-500 text-rose-500" : "text-gray-400"}`}
         />
       </button>
-      <div className="flex-1 overflow-hidden min-h-0">
+      <div className="flex-1 overflow-hidden min-h-0 bg-gray-100">
         <img
-          src={product.img}
+          src={prodImg}
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           style={{ minHeight: "200px" }}
@@ -413,12 +426,12 @@ function WideTallCard({ product, wishlist, toggleWishlist }) {
           {product.name}
         </p>
         <p className="text-lg font-bold text-[#4a6741] mb-2">
-          ₹{product.price.toLocaleString()}
+          ₹{Number(product.price).toLocaleString()}
         </p>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <StarRating rating={product.rating} />
-            <span className="text-xs text-gray-500">({product.reviews})</span>
+            <StarRating rating={product.rating || 5.0} />
+            <span className="text-xs text-gray-500">({product.reviewsCount || product.reviews || 0})</span>
           </div>
           <button
             onClick={(e) => e.preventDefault()}
@@ -434,28 +447,35 @@ function WideTallCard({ product, wishlist, toggleWishlist }) {
 
 // Small scrollable card for trending/new/favs
 function MiniCard({ item }) {
+  if (!item) return null;
+  const prodImg = item.images && item.images.length > 0 ? item.images[0] : item.img || "/images/Granny_Sweater.png";
+  const slug = item.slug || item.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
   return (
-    <div className="flex-shrink-0 w-28 cursor-pointer group">
+    <Link href={`/collection/${slug}`} className="flex-shrink-0 w-28 cursor-pointer group block">
       <div className="rounded-xl overflow-hidden aspect-square bg-gray-100 mb-2 relative">
         <img
-          src={item.img}
+          src={prodImg}
           alt={item.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           onError={(e) => {
-            e.target.src = `https://placehold.co/200x200/e8f0e0/4a6741?text=Item`;
+            e.target.src = `https://placehold.co/200x200/e8f0e0/4a6741?text=${encodeURIComponent(item.name || "Item")}`;
           }}
         />
-        <button className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+        <button
+          onClick={(e) => e.preventDefault()}
+          className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-white/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+        >
           <FiHeart className="text-xs text-gray-400" />
         </button>
       </div>
-      <p className="text-xs font-medium text-gray-700 leading-tight">
+      <p className="text-xs font-medium text-gray-700 leading-tight line-clamp-1">
         {item.name}
       </p>
       <p className="text-xs font-bold text-[#4a6741] mt-0.5">
-        ₹{item.price.toLocaleString()}
+        ₹{Number(item.price).toLocaleString()}
       </p>
-    </div>
+    </Link>
   );
 }
 
@@ -510,9 +530,62 @@ function HorizontalScrollSection({ title, items, viewAllLink }) {
 
 // ---------- MAIN PAGE ----------
 export default function CrochetAllifyCollections() {
+  const searchParams = useSearchParams();
+  const [categoriesList, setCategoriesList] = useState(CATEGORIES);
+  const [productsList, setProductsList] = useState(PRODUCTS);
   const [activeCategory, setActiveCategory] = useState("All");
   const [wishlist, setWishlist] = useState([]);
   const [sortBy, setSortBy] = useState("Featured");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [catRes, prodRes] = await Promise.all([
+          fetch("/api/categories"),
+          fetch("/api/products"),
+        ]);
+
+        const catJson = await catRes.json();
+        const prodJson = await prodRes.json();
+
+        if (catJson.success && catJson.data && catJson.data.length > 0) {
+          const apiCats = catJson.data.map((c) => ({
+            label: c.name,
+            slug: c.slug,
+            icon: <BsBag />,
+          }));
+          setCategoriesList([
+            { label: "All", slug: "all", icon: <BsGrid /> },
+            ...apiCats,
+            { label: "New Arrivals", slug: "new-arrivals", icon: <GiLeafSwirl /> },
+            { label: "Best Sellers", slug: "best-sellers", icon: <BsPatchCheck /> },
+          ]);
+        }
+
+        if (prodJson.success && prodJson.data && prodJson.data.length > 0) {
+          setProductsList(prodJson.data);
+        }
+      } catch (e) {
+        console.error("Could not fetch collection data:", e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  useEffect(() => {
+    const categoryParam = searchParams?.get("category");
+    if (categoryParam) {
+      const matched = categoriesList.find(
+        (c) => c.slug === categoryParam || c.label.toLowerCase().includes(categoryParam.toLowerCase())
+      );
+      if (matched) {
+        setActiveCategory(matched.label);
+      }
+    }
+  }, [searchParams, categoriesList]);
 
   const toggleWishlist = (id) => {
     setWishlist((prev) =>
@@ -679,7 +752,7 @@ export default function CrochetAllifyCollections() {
               WebkitOverflowScrolling: "touch",
             }}
           >
-            {CATEGORIES.map((cat) => (
+            {categoriesList.map((cat) => (
               <button
                 key={cat.label}
                 onClick={() => setActiveCategory(cat.label)}
@@ -736,64 +809,64 @@ export default function CrochetAllifyCollections() {
               gridTemplateRows: "280px 180px 220px",
             }}
           >
-            {/* Pearl Crochet Pouch */}
+            {/* Pearl Crochet Pouch / Item 1 */}
             <div style={{ gridColumn: "1", gridRow: "1/3" }}>
               <TallProductCard
-                product={PRODUCTS[0]}
+                product={productsList[0] || PRODUCTS[0]}
                 wishlist={wishlist}
                 toggleWishlist={toggleWishlist}
               />
             </div>
 
-            {/* Elegant Crochet Handbag */}
+            {/* Elegant Crochet Handbag / Item 2 */}
             <div style={{ gridColumn: "2", gridRow: "1 / 4" }}>
               <TallProductCard
-                product={PRODUCTS[1]}
+                product={productsList[1] || PRODUCTS[1]}
                 wishlist={wishlist}
                 toggleWishlist={toggleWishlist}
               />
             </div>
 
-            {/* Crochet Sheep */}
+            {/* Item 3 */}
             <div style={{ gridColumn: "3", gridRow: "1/3" }}>
               <TallProductCard
-                product={PRODUCTS[2]}
+                product={productsList[2] || PRODUCTS[2]}
                 wishlist={wishlist}
                 toggleWishlist={toggleWishlist}
               />
             </div>
 
-            {/* Floral Wall Hanging */}
+            {/* Item 4 */}
             <div style={{ gridColumn: "4", gridRow: "1/3" }}>
               <TallProductCard
-                product={PRODUCTS[3]}
+                product={productsList[3] || PRODUCTS[3]}
                 wishlist={wishlist}
                 toggleWishlist={toggleWishlist}
               />
             </div>
 
-            {/* Dreamcatcher */}
+            {/* Item 5 */}
             <div style={{ gridColumn: "1", gridRow: "3 / 5" }}>
               <TallProductCard
-                product={PRODUCTS[4]}
+                product={productsList[4] || PRODUCTS[4]}
                 wishlist={wishlist}
                 toggleWishlist={toggleWishlist}
               />
             </div>
 
-            {/* Handmade Wallet */}
+            {/* Item 6 */}
             <div style={{ gridColumn: "2", gridRow: "4" }}>
               <SmallProductCard
-                product={PRODUCTS[5]}
+                product={productsList[5] || PRODUCTS[5]}
                 wishlist={wishlist}
                 toggleWishlist={toggleWishlist}
               />
             </div>
 
-            {/* Potli Bag */}
+            {/* Item 7 */}
             <div style={{ gridColumn: "3 / 5", gridRow: "3 / 5" }}>
               <WideTallCard
-                product={PRODUCTS[6]}
+                product={productsList[6] || PRODUCTS[6]}
                 wishlist={wishlist}
                 toggleWishlist={toggleWishlist}
               />
@@ -1039,16 +1112,28 @@ export default function CrochetAllifyCollections() {
     </div>
   </div>
 </section>
-      {/* TRENDING / NEW ARRIVALS / HANDMADE FAVORITES — with arrow nav like Image 2 */}
+      {/* TRENDING / NEW ARRIVALS / HANDMADE FAVORITES — Dynamic Sub-Categories from Database */}
       <section className="max-w-7xl mx-auto px-4 mt-10">
         <div className="flex flex-col md:flex-row gap-8">
-          <HorizontalScrollSection title="Trending Now" items={TRENDING} />
+          <HorizontalScrollSection
+            title="Trending Now"
+            items={productsList.filter((p) => p.isFeatured || p.badge === "Bestseller").length > 0
+              ? productsList.filter((p) => p.isFeatured || p.badge === "Bestseller")
+              : TRENDING}
+          />
           <div className="hidden md:block w-px bg-gray-200" />
-          <HorizontalScrollSection title="New Arrivals" items={NEW_ARRIVALS} />
+          <HorizontalScrollSection
+            title="New Arrivals"
+            items={productsList.filter((p) => p.badge === "New Launch" || p.badge === "New").length > 0
+              ? productsList.filter((p) => p.badge === "New Launch" || p.badge === "New")
+              : productsList.slice(0, 4).length > 0 ? productsList.slice(0, 4) : NEW_ARRIVALS}
+          />
           <div className="hidden md:block w-px bg-gray-200" />
           <HorizontalScrollSection
             title="Handmade Favorites"
-            items={HANDMADE_FAV}
+            items={productsList.filter((p) => p.rating >= 4.8).length > 0
+              ? productsList.filter((p) => p.rating >= 4.8)
+              : HANDMADE_FAV}
           />
         </div>
       </section>

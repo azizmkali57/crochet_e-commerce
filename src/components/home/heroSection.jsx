@@ -116,15 +116,15 @@ export default function HeroSection() {
           }}
         />
 
-        <div className="relative z-10 max-w-[1500px] mx-auto px-8 lg:px-16 flex flex-col justify-center" style={{ minHeight: "100svh" }}>
+        <div className="relative z-10 max-w-[1500px] mx-auto px-8 lg:px-16 pt-32 lg:pt-36 pb-16 flex flex-col justify-center" style={{ minHeight: "100svh" }}>
 
-          <div style={{ maxWidth: "500px" }}>
+          <div style={{ maxWidth: "520px" }}>
 
-            <p className="text-[11px] tracking-[0.35em] uppercase font-semibold mb-5" style={{ color: "#3D5938" }}>
+            <p className="text-[11px] tracking-[0.35em] uppercase font-semibold mb-4" style={{ color: "#3D5938" }}>
               Crafted With Love
             </p>
 
-            <h1 className="font-heading leading-[1.05]" style={{ fontSize: "clamp(44px,5vw,64px)", color: "#111827" }}>
+            <h1 className="font-heading leading-[1.08]" style={{ fontSize: "clamp(40px,4.5vw,58px)", color: "#111827" }}>
               Handmade <br /> touches,
             </h1>
 
@@ -136,14 +136,22 @@ export default function HeroSection() {
               Timeless crochet creations, thoughtfully handcrafted to add warmth, beauty and meaning to your everyday.
             </p>
 
-            <div className="flex items-center gap-4 mb-14 flex-wrap">
-              <button className="flex items-center gap-3 px-7 py-3.5 rounded-full text-white font-semibold text-sm" style={{ backgroundColor: "#3D5938" }}>
+            <div className="flex items-center gap-4 mb-12 flex-wrap">
+              <Link
+                href="/collection"
+                className="flex items-center gap-3 px-7 py-3.5 rounded-full text-white font-semibold text-sm transition hover:opacity-90"
+                style={{ backgroundColor: "#3D5938" }}
+              >
                 Explore Collections <FiArrowRight size={15} />
-              </button>
+              </Link>
 
-              <button className="flex items-center gap-2 px-7 py-3.5 rounded-full bg-white/60 font-medium text-sm" style={{ border: "1px solid #3D5938", color: "#3D5938" }}>
+              <Link
+                href="/contact"
+                className="flex items-center gap-2 px-7 py-3.5 rounded-full bg-white/70 font-medium text-sm transition hover:bg-white"
+                style={{ border: "1px solid #3D5938", color: "#3D5938" }}
+              >
                 Custom Order <FiHeart size={14} />
-              </button>
+              </Link>
             </div>
 
             <div className="flex gap-6 lg:gap-8">

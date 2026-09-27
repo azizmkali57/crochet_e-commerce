@@ -166,9 +166,9 @@ Each phase's modules should be built in the listed order — later modules assum
 
 | # | Module | Phase | Status | Depends on |
 |---|---|---|---|---|
-| 0 | Platform Foundation | 1 | Not started | — |
-| 1 | Categories | 2 | Not started | 0 |
-| 2 | Products & Images | 2 | Not started | 0, 1 |
+| 0 | Platform Foundation | 1 | Completed | — |
+| 1 | Categories | 2 | Completed | 0 |
+| 2 | Products & Images | 2 | Completed | 0, 1 |
 | 3 | Cart Wiring | 3 | Not started | 2 |
 | 4 | Checkout & Order Creation | 3 | Not started | 2, 3 |
 | 5 | Payment Integration | 3 | Not started | 4, V-001 |
@@ -203,22 +203,19 @@ Each phase's modules should be built in the listed order — later modules assum
 
 ### Module 0 — Platform Foundation
 
-Status: **Not started**
-Objective: stand up the database, Prisma schema, and authentication so every later module has something to build on.
-Confirmed requirements: Postgres + Prisma set up; `User`, `Address` models; customer register/login/logout; admin login using the same `User` table with `role: ADMIN`; session handling (NextAuth or custom JWT in an httpOnly cookie); `middleware.js` route protection scaffold.
+Status: **COMPLETED** (Database, Auth, Middleware, SMTP Password Recovery & Welcome Emails)
+Objective: stand up the database, Mongoose schema, and authentication so every later module has something to build on.
+Confirmed requirements: MongoDB + Mongoose connected; `User`, `Address`, `Order`, `Product`, `Review`, `CustomCommission`, `Coupon` models; customer register/login/logout; admin login (`role: admin`); NextAuth session handling (Credentials + Google OAuth + Google One Tap); `src/middleware.js` route protection; SMTP Nodemailer integration for password reset & welcome emails.
 TBV: V-007 (future multi-staff roles), V-008 (hosting).
-Assumption: NextAuth.js Credentials provider for session management, one `User` table with a `role` enum rather than a separate admin table — simpler for a single-owner store.
-Out of scope: SSO/social login, multi-factor auth (flag as FUTURE/OPTIONAL if the owner wants it later).
-Dependencies: none — build this first.
 
 Submodules:
-- [ ] Initialize Prisma, connect to a local/dev Postgres instance, run the first migration.
-- [ ] `User` and `Address` models (see `prisma/schema.prisma`).
-- [ ] `POST /api/auth/register` — Zod-validated, bcrypt-hashed password (cost ≥ 12).
-- [ ] `POST /api/auth/login` (or NextAuth Credentials provider config) — httpOnly session cookie.
-- [ ] `GET /api/auth/me` — returns current session user or `401`.
-- [ ] `middleware.js` — protects `/admin/**`, `/api/admin/**`, `/account/**`.
-- [ ] Seed one admin user (`prisma/seed.js` admin block).
+- [x] Initialize MongoDB Atlas connection via [mongodb.js](file:///g:/chrochet/crochet_e-commerce/src/lib/mongodb.js).
+- [x] `User` model with address schemas, stitch points, and reset tokens ([User.js](file:///g:/chrochet/crochet_e-commerce/src/models/User.js)).
+- [x] `POST /api/auth/register` — bcrypt hashing (cost 12), duplicate email checks, welcome emails ([register/route.js](file:///g:/chrochet/crochet_e-commerce/src/app/api/auth/register/route.js)).
+- [x] NextAuth credentials & Google login with auto admin seeding ([auth.js](file:///g:/chrochet/crochet_e-commerce/src/lib/auth.js)).
+- [x] `POST /api/auth/forgot-password` & `POST /api/auth/reset-password` — 6-digit OTP verification code & SMTP emailing ([forgot-password](file:///g:/chrochet/crochet_e-commerce/src/app/api/auth/forgot-password/route.js), [reset-password](file:///g:/chrochet/crochet_e-commerce/src/app/api/auth/reset-password/route.js)).
+- [x] `middleware.js` — route protection for `/admin/**`, `/dashboard/**`, `/profile/**`.
+- [x] Pre-configured Admin auto-seeding in [auth.js](file:///g:/chrochet/crochet_e-commerce/src/lib/auth.js).
 
 Workflow/states: user registered → active. Session issued → active → expired. Validate unique normalized email, minimum password length (8+), active-session check on every protected request.
 
@@ -233,16 +230,18 @@ Tests:
 
 ### Module 1 — Categories
 
-Status: **Not started**
-Objective: persist the five confirmed catalog categories so products can attach to them.
-Confirmed requirements: CRUD for Bags, Home Decor, Accessories, Wall Art, Custom Pieces.
+Status: **COMPLETED** (Schema, Seed, Public Count API, Admin CRUD, UI Integration)
+Objective: persist the handcrafted catalog categories so products can attach to them.
+Confirmed requirements: CRUD for Bags & Pouches, Home Decor, Handkerchiefs, Wall Hangings, Soft Toys, and Accessories.
 TBV: none blocking — categories are simple and confirmed.
 Dependencies: Module 0.
 
 Submodules:
-- [ ] `Category` Prisma model (name, slug, description, image).
-- [ ] `GET /api/categories` — public, returns active categories with a product count.
-- [ ] Admin category CRUD (can ship as a simple admin form; not a P0 UI priority since the 5 categories are already known — a one-time seed may suffice for v1, with CRUD as a fast-follow).
+- [x] `Category` Mongoose model ([Category.js](file:///g:/chrochet/crochet_e-commerce/src/models/Category.js)).
+- [x] Auto category seeder helper ([seedCategories.js](file:///g:/chrochet/crochet_e-commerce/src/lib/seedCategories.js)).
+- [x] `GET /api/categories` — public, returns active categories with dynamic product count ([route.js](file:///g:/chrochet/crochet_e-commerce/src/app/api/categories/route.js)).
+- [x] Admin category CRUD: `GET/POST/PUT/DELETE /api/admin/categories` with server-side admin role check ([admin/categories/route.js](file:///g:/chrochet/crochet_e-commerce/src/app/api/admin/categories/route.js)).
+- [x] Frontend dynamic integration on Home collections ([collections.jsx](file:///g:/chrochet/crochet_e-commerce/src/components/home/collections.jsx)) and Catalog filter tabs ([collection/page.jsx](file:///g:/chrochet/crochet_e-commerce/src/app/collection/page.jsx)).
 
 Backend/persistence: `Category` model with a unique `slug`.
 
@@ -253,19 +252,19 @@ Tests:
 
 ### Module 2 — Products & Images
 
-Status: **Not started**
-Objective: replace `lib/productData.js` with real, database-backed products the storefront can query.
-Confirmed requirements: `Product` model with name, slug, description, `details` (handcrafted feature list), price, originalPrice, stock, badge, colors (hex array), `isFeatured`, `isActive`; `ProductImage` model with ordered gallery images and one `isPrimary`.
-TBV: V-009 (exact mock-data field shape, for a clean seed mapping).
-Assumption: colors are a simple string array on `Product` (not separate stock-tracked variant rows) — acceptable for v1 since the original brief did not request per-color stock tracking; flagged as a risk in §10 if that changes.
+Status: **COMPLETED** (Schema, ImageKit Media Storage, Auto-Seed, Public & Admin APIs, Storefront & Admin Integration)
+Objective: replace `lib/productData.js` with real, database-backed products and ImageKit CDN media storage.
+Confirmed requirements: `Product` Mongoose model; ImageKit CDN cloud storage for media; seed migration from mock data; `GET /api/products` (filtering, sorting, pagination); `GET /api/products/:slug` (full gallery detail and related items); `GET/POST/PUT/DELETE /api/admin/products` with image upload pipeline and admin role protection; Storefront `/collection` and `/collection/[slug]` wired to MongoDB.
 Dependencies: Module 0, Module 1.
 
 Submodules:
-- [ ] `Product`, `ProductImage` Prisma models (see `prisma/schema.prisma`).
-- [ ] `GET /api/products` — filtering (category, search, price range, badge), sorting, pagination (see `app/api/products/route.js`).
-- [ ] `GET /api/products/:slug` — full detail with images, category, approved reviews, related products.
-- [ ] Admin product CRUD: `POST/PUT/DELETE /api/admin/products` (soft-delete only).
-- [ ] Refactor `src/app/collection/page.jsx` and `[slug]/page.jsx` from static import to Prisma-backed Server Components.
+- [x] Configure ImageKit integration & helper ([imagekit.js](file:///g:/chrochet/crochet_e-commerce/src/lib/imagekit.js), [imagekit-upload](file:///g:/chrochet/crochet_e-commerce/src/app/api/admin/uploads/imagekit-upload/route.js), [imagekit-auth](file:///g:/chrochet/crochet_e-commerce/src/app/api/admin/uploads/imagekit-auth/route.js)).
+- [x] `Product` Mongoose model ([Product.js](file:///g:/chrochet/crochet_e-commerce/src/models/Product.js)).
+- [x] Product catalog seeder helper ([seedProducts.js](file:///g:/chrochet/crochet_e-commerce/src/lib/seedProducts.js)).
+- [x] `GET /api/products` — filtering by category/search/price, sorting, pagination ([products/route.js](file:///g:/chrochet/crochet_e-commerce/src/app/api/products/route.js)).
+- [x] `GET /api/products/[slug]` — single product detail with gallery and related products ([products/[slug]/route.js](file:///g:/chrochet/crochet_e-commerce/src/app/api/products/%5Bslug%5D/route.js)).
+- [x] Admin product CRUD with ImageKit upload ([admin/products/route.js](file:///g:/chrochet/crochet_e-commerce/src/app/api/admin/products/route.js) & [dashboard/products/page.jsx](file:///g:/chrochet/crochet_e-commerce/src/app/dashboard/products/page.jsx)).
+- [x] Refactored Storefront collection catalog ([collection/page.jsx](file:///g:/chrochet/crochet_e-commerce/src/app/collection/page.jsx)) and detail view ([ProductDetailPage.jsx](file:///g:/chrochet/crochet_e-commerce/src/components/ProductDetail/ProductDetailPage.jsx)) to live database data.
 
 Workflow/states: product created (inactive by default until images are attached) → active → (optionally) deactivated. Stock is display-only here; it is only *decremented* in Module 4.
 
