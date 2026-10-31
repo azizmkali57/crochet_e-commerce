@@ -1,11 +1,11 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { FiArrowLeft, FiArrowRight, FiHeart, FiShoppingCart } from "react-icons/fi";
 import { BsStarFill } from "react-icons/bs";
 import { useCart } from "@/components/context/CartContext";
-import { getAllProducts } from "../../../lib/productData";
+import { useWishlist } from "@/components/context/WishlistContext";
 
 function StarRating({ rating, size = "text-xs" }) {
   return (
@@ -25,20 +25,27 @@ function StarRating({ rating, size = "text-xs" }) {
 export default function Bestsellers() {
   const scrollRef = useRef(null);
   const { addToCart } = useCart();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Get all products and filter for bestsellers (those with badge "Bestseller")
-  const allProducts = getAllProducts();
-
-const bestsellerProducts = allProducts.filter(
-  (p) => p.badge === "Bestseller"
-);
-
-// If less than 4 bestseller products exist,
-// show all products instead.
-const products =
-  bestsellerProducts.length >= 4
-    ? bestsellerProducts
-    : allProducts;
+  useEffect(() => {
+    async function loadBestsellers() {
+      try {
+        const res = await fetch("/api/products?limit=12&sort=featured");
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+          // Filter bestseller tagged or take top products
+          const bestsellers = json.data.filter((p) => p.badge === "Bestseller");
+          setProducts(bestsellers.length >= 4 ? bestsellers : json.data);
+        }
+      } catch (err) {
+        console.error("Failed to load bestsellers:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadBestsellers();
+  }, []);
 
   const scrollLeft = () =>
     scrollRef.current?.scrollBy({ left: -280, behavior: "smooth" });
@@ -129,8 +136,12 @@ const products =
   );
 }
 
-/* Product Card - Updated to use actual product data and proper linking */
+/* Product Card - Uses live database product data */
 function ProductCard({ product, mobile, addToCart }) {
+  const { toggleWishlist, isInWishlist } = useWishlist();
+  const productId = product._id?.toString() || product.id || product.slug;
+  const isFavorited = isInWishlist(productId);
+
   return (
     <Link
       href={`/collection/${product.slug}`}
@@ -148,7 +159,7 @@ function ProductCard({ product, mobile, addToCart }) {
         }}
       >
         <img
-          src={product.images?.[0] || product.img}
+          src={product.images?.[0] || product.img || "/images/Granny_Sweater.png"}
           alt={product.name}
           className="w-full h-full object-cover"
           onError={(e) => {
@@ -161,10 +172,23 @@ function ProductCard({ product, mobile, addToCart }) {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
+            toggleWishlist({
+              id: productId,
+              slug: product.slug,
+              name: product.name,
+              price: product.price,
+              originalPrice: product.originalPrice,
+              images: product.images || [product.img],
+              image: product.images?.[0] || product.img,
+              badge: product.badge,
+              badgeColor: product.badgeColor,
+            });
           }}
-          className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white transition"
+          className={`absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white transition ${
+            isFavorited ? "text-rose-500 scale-105" : "text-[#3D5938]"
+          }`}
         >
-          <FiHeart size={13} style={{ color: "#3D5938" }} />
+          <FiHeart size={13} className={isFavorited ? "fill-rose-500 text-rose-500" : ""} />
         </button>
 
         {/* Add to Cart */}
@@ -174,10 +198,13 @@ function ProductCard({ product, mobile, addToCart }) {
               e.preventDefault();
               e.stopPropagation();
               addToCart({
-                id: product.id,
+                id: productId,
+                slug: product.slug,
                 name: product.name,
                 price: product.price,
-                image: product.images?.[0],
+                image: product.images?.[0] || product.img,
+                selectedColor: product.colors?.[0] || null,
+                stockCount: product.stockCount ?? 10,
               });
             }}
             className="w-full py-2.5 text-xs font-semibold text-white tracking-wide flex items-center justify-center gap-2"
@@ -207,13 +234,13 @@ function ProductCard({ product, mobile, addToCart }) {
       </p>
 
       <p className="text-sm font-bold mb-1.5" style={{ color: "#6B7565" }}>
-        ₹{product.price.toLocaleString()}
+        ₹{Number(product.price).toLocaleString()}
       </p>
 
       {/* Rating */}
       <div className="flex items-center gap-1">
-        <StarRating rating={product.rating} size="text-xs" />
-        <span className="text-xs text-gray-500">({product.reviews})</span>
+        <StarRating rating={product.rating || 5.0} size="text-xs" />
+        <span className="text-xs text-gray-500">({product.reviewsCount || product.reviews || 0})</span>
       </div>
     </Link>
   );

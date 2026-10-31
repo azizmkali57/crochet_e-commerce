@@ -81,8 +81,9 @@ export default function SimpleProductCard({
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
+            const productId = product._id?.toString() || product.id || product.slug;
             toggleWishlist({
-              id: product.id,
+              id: productId,
               slug: product.slug,
               name: product.name,
               price: product.price,
@@ -112,8 +113,8 @@ export default function SimpleProductCard({
         {/* Rating */}
         {showRating && (
           <div className="flex items-center gap-1.5 mb-2">
-            <StarRating rating={product.rating} size="text-xs" />
-            <span className="text-xs text-gray-500">({product.reviews})</span>
+            <StarRating rating={product.rating || 5.0} size="text-xs" />
+            <span className="text-xs text-gray-500">({product.reviewsCount || product.reviews || 0})</span>
           </div>
         )}
 
@@ -121,11 +122,11 @@ export default function SimpleProductCard({
         <div className="mt-auto">
           <div className="flex items-center gap-2 mb-3">
             <p className="font-bold text-[#4a6741] text-sm">
-              ₹{product.price.toLocaleString()}
+              ₹{Number(product.price).toLocaleString()}
             </p>
             {product.originalPrice && (
               <p className="text-xs text-gray-400 line-through">
-                ₹{product.originalPrice.toLocaleString()}
+                ₹{Number(product.originalPrice).toLocaleString()}
               </p>
             )}
           </div>
@@ -136,13 +137,16 @@ export default function SimpleProductCard({
               e.preventDefault();
               e.stopPropagation();
 
+              const productId = product._id?.toString() || product.id || product.slug;
               addToCart({
-  id: product.id,
-  slug: product.slug,
-  name: product.name,
-  price: product.price,
-  image: product.images?.[0] ?? product.img,
-});
+                id: productId,
+                slug: product.slug,
+                name: product.name,
+                price: product.price,
+                image: product.images?.[0] ?? product.img,
+                selectedColor: product.colors?.[0] || null,
+                stockCount: product.stockCount ?? 10,
+              });
             }}
             className="w-full bg-[#4a6741] text-white text-xs font-semibold py-2.5 rounded-lg hover:bg-[#3a5331] transition-colors flex items-center justify-center gap-1.5"
           >

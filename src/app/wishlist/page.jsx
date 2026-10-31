@@ -23,11 +23,13 @@ export default function WishlistPage() {
   const handleMoveAllToCart = () => {
     wishlist.forEach((product) => {
       addToCart({
-        id: product.id,
+        id: product.id || product.slug,
         slug: product.slug,
         name: product.name,
         price: product.price,
         image: product.images?.[0] || product.image || "/images/Granny_Sweater.png",
+        selectedColor: product.colors?.[0] || null,
+        stockCount: product.stockCount ?? 10,
       });
     });
   };
@@ -161,11 +163,13 @@ export default function WishlistPage() {
                     <button
                       onClick={() =>
                         addToCart({
-                          id: item.id,
+                          id: item.id || item.slug,
                           slug: item.slug,
                           name: item.name,
                           price: item.price,
                           image: item.images?.[0] || item.image || "/images/Granny_Sweater.png",
+                          selectedColor: item.colors?.[0] || null,
+                          stockCount: item.stockCount ?? 10,
                         })
                       }
                       className="w-full py-3 rounded-2xl bg-primary hover:bg-primary-dark text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-button transition active:scale-[0.99] cursor-pointer"

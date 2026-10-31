@@ -138,30 +138,46 @@ export default function CartPage() {
 
                 {cart.map((item) => (
                   <div
-                    key={item.id}
+                    key={item.cartKey || `${item.id}_${item.selectedColor || "default"}`}
                     className="flex flex-col sm:grid sm:grid-cols-12 items-start sm:items-center gap-4 py-4 border-b border-sage-light/60 last:border-b-0"
                   >
                     {/* Item Info */}
                     <div className="sm:col-span-6 flex items-center gap-4 w-full">
-                      <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl bg-cream overflow-hidden border border-sage-light flex-shrink-0">
+                      <Link
+                        href={item.slug ? `/collection/${item.slug}` : "/collection"}
+                        className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl bg-cream overflow-hidden border border-sage-light flex-shrink-0 group hover:opacity-90 transition"
+                      >
                         <img
                           src={item.image || "/images/Granny_Sweater.png"}
                           alt={item.name}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
-                      </div>
+                      </Link>
                       <div className="flex-grow">
                         <span className="text-[11px] font-semibold text-muted uppercase tracking-wider block">
                           Hand-crocheted
                         </span>
-                        <h3 className="font-heading text-sm sm:text-base font-bold text-primary line-clamp-1">
+                        <Link
+                          href={item.slug ? `/collection/${item.slug}` : "/collection"}
+                          className="font-heading text-sm sm:text-base font-bold text-primary hover:text-primary-dark transition line-clamp-1 block"
+                        >
                           {item.name}
-                        </h3>
+                        </Link>
+                        {item.selectedColor && (
+                          <div className="flex items-center gap-1.5 mt-1 text-xs text-warm">
+                            <span>Color:</span>
+                            <span
+                              className="w-3.5 h-3.5 rounded-full border border-gray-300 inline-block"
+                              style={{ backgroundColor: item.selectedColor }}
+                              title={item.selectedColor}
+                            />
+                          </div>
+                        )}
                         <p className="text-xs text-warm mt-0.5 sm:hidden">
-                          ₹{item.price.toLocaleString()} each
+                          ₹{Number(item.price).toLocaleString()} each
                         </p>
                         <button
-                          onClick={() => removeFromCart(item.id)}
+                          onClick={() => removeFromCart(item.id, item.selectedColor)}
                           className="text-xs text-rose-500 hover:text-rose-700 font-medium flex items-center gap-1 mt-1.5 cursor-pointer"
                         >
                           <FiTrash2 size={12} /> Remove
@@ -171,15 +187,16 @@ export default function CartPage() {
 
                     {/* Unit Price (Desktop) */}
                     <div className="hidden sm:block sm:col-span-2 text-center font-medium text-sm text-warm">
-                      ₹{item.price.toLocaleString()}
+                      ₹{Number(item.price).toLocaleString()}
                     </div>
 
                     {/* Quantity Controls */}
                     <div className="sm:col-span-2 flex items-center justify-between sm:justify-center w-full sm:w-auto">
                       <div className="flex items-center border border-sage/70 rounded-full bg-cream-light/40 p-1">
                         <button
-                          onClick={() => decreaseQty(item.id)}
+                          onClick={() => decreaseQty(item.id, item.selectedColor)}
                           className="w-7 h-7 rounded-full bg-white hover:bg-cream text-primary flex items-center justify-center transition shadow-2xs cursor-pointer"
+                          aria-label="Decrease quantity"
                         >
                           <FiMinus size={11} />
                         </button>
@@ -187,8 +204,14 @@ export default function CartPage() {
                           {item.qty}
                         </span>
                         <button
-                          onClick={() => increaseQty(item.id)}
-                          className="w-7 h-7 rounded-full bg-white hover:bg-cream text-primary flex items-center justify-center transition shadow-2xs cursor-pointer"
+                          onClick={() => increaseQty(item.id, item.selectedColor)}
+                          disabled={item.stockCount && item.qty >= item.stockCount}
+                          className={`w-7 h-7 rounded-full bg-white hover:bg-cream text-primary flex items-center justify-center transition shadow-2xs ${
+                            item.stockCount && item.qty >= item.stockCount
+                              ? "opacity-40 cursor-not-allowed"
+                              : "cursor-pointer"
+                          }`}
+                          aria-label="Increase quantity"
                         >
                           <FiPlus size={11} />
                         </button>
@@ -199,7 +222,7 @@ export default function CartPage() {
                     <div className="sm:col-span-2 text-right w-full sm:w-auto flex justify-between sm:block items-center">
                       <span className="sm:hidden text-xs text-muted font-medium">Subtotal:</span>
                       <p className="font-heading text-base font-bold text-primary">
-                        ₹{(item.price * item.qty).toLocaleString()}
+                        ₹{(Number(item.price) * Number(item.qty)).toLocaleString()}
                       </p>
                     </div>
                   </div>

@@ -14,6 +14,7 @@ import {
 } from "react-icons/fi";
 import { BsStarFill } from "react-icons/bs";
 import { useCart } from "@/components/context/CartContext";
+import { useWishlist } from "@/components/context/WishlistContext";
 import { getProductBySlug, getRelatedProducts } from "../../../lib/productData";
 
 // ---------- STAR RATING COMPONENT ----------
@@ -111,7 +112,11 @@ function ImageGallery({ images = [], productName }) {
 
 // ---------- RELATED PRODUCT CARD COMPONENT ----------
 function RelatedProductCard({ product }) {
+  const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const prodImg = product.images && product.images.length > 0 ? product.images[0] : product.img || "/images/Granny_Sweater.png";
+  const productId = product._id?.toString() || product.id || product.slug;
+  const isFavorited = isInWishlist(productId);
 
   return (
     <Link
@@ -119,10 +124,27 @@ function RelatedProductCard({ product }) {
       className={`relative rounded-2xl ${product.bg || "bg-gradient-to-br from-green-50 to-emerald-100"} overflow-hidden group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300 flex-shrink-0 w-[180px] sm:w-[220px]`}
     >
       <button
-        onClick={(e) => e.preventDefault()}
-        className="absolute top-2.5 right-2.5 z-10 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white transition-colors"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleWishlist({
+            id: productId,
+            slug: product.slug,
+            name: product.name,
+            price: product.price,
+            originalPrice: product.originalPrice,
+            images: product.images || [prodImg],
+            image: prodImg,
+            badge: product.badge,
+            badgeColor: product.badgeColor,
+          });
+        }}
+        className={`absolute top-2.5 right-2.5 z-10 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white transition-colors ${
+          isFavorited ? "text-rose-500 scale-105" : "text-gray-400"
+        }`}
+        title="Wishlist"
       >
-        <FiHeart className="text-sm text-gray-400" />
+        <FiHeart className={`text-sm ${isFavorited ? "fill-rose-500 text-rose-500" : ""}`} />
       </button>
       <div className="aspect-square overflow-hidden bg-gray-100">
         <img
@@ -149,8 +171,21 @@ function RelatedProductCard({ product }) {
             <span className="text-xs text-gray-500">({product.reviewsCount || product.reviews || 0})</span>
           </div>
           <button
-            onClick={(e) => e.preventDefault()}
-            className="w-8 h-8 rounded-full bg-[#4a6741] flex items-center justify-center text-white hover:bg-[#3a5331] transition-colors shadow-sm"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              addToCart({
+                id: productId,
+                slug: product.slug,
+                name: product.name,
+                price: product.price,
+                image: prodImg,
+                selectedColor: product.colors?.[0] || null,
+                stockCount: product.stockCount ?? 10,
+              });
+            }}
+            className="w-8 h-8 rounded-full bg-[#4a6741] flex items-center justify-center text-white hover:bg-[#3a5331] transition-colors shadow-sm cursor-pointer"
+            title="Add to cart"
           >
             <FiShoppingCart className="text-xs" />
           </button>
@@ -163,6 +198,7 @@ function RelatedProductCard({ product }) {
 // ---------- MAIN PRODUCT DETAIL COMPONENT ----------
 export default function ProductDetailPage({ slug }) {
   const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const fallbackProduct = getProductBySlug(slug) || {
     name: "Crochet Handcrafted Piece",
     slug,
@@ -176,10 +212,13 @@ export default function ProductDetailPage({ slug }) {
   const [product, setProduct] = useState(fallbackProduct);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [addedNotice, setAddedNotice] = useState(false);
 
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState(0);
-  const [wishlisted, setWishlisted] = useState(false);
+
+  const productId = product._id?.toString() || product.id || product.slug;
+  const wishlisted = isInWishlist(productId);
 
   useEffect(() => {
     async function loadProduct() {
@@ -209,6 +248,23 @@ export default function ProductDetailPage({ slug }) {
         ((product.originalPrice - product.price) / product.originalPrice) * 100,
       )
     : 0;
+
+  const handleAddToCart = () => {
+    addToCart(
+      {
+        id: productId,
+        slug: product.slug,
+        name: product.name,
+        price: product.price,
+        image: product.images?.[0] || "/images/Granny_Sweater.png",
+        selectedColor: product.colors?.[selectedColor] || null,
+        stockCount: product.stockCount ?? 10,
+      },
+      quantity
+    );
+    setAddedNotice(true);
+    setTimeout(() => setAddedNotice(false), 2500);
+  };
 
   return (
     <main className="max-w-7xl mx-auto px-4 lg:px-8 pt-28 lg:pt-32 pb-16">
@@ -329,23 +385,27 @@ export default function ProductDetailPage({ slug }) {
           {/* Action buttons */}
           <div className="flex flex-col sm:flex-row gap-3 mb-8">
             <button
-              onClick={() =>
-                addToCart({
-                  id: product.id,
-                  name: product.name,
-                  price: product.price,
-                  image: product.images?.[0],
-                  quantity,
-                })
-              }
-              className="flex-1 flex items-center justify-center gap-2 bg-[#4a6741] text-white px-6 py-3.5 rounded-full font-semibold hover:bg-[#3a5331] transition-colors shadow-sm"
+              onClick={handleAddToCart}
+              className="flex-1 flex items-center justify-center gap-2 bg-[#4a6741] text-white px-6 py-3.5 rounded-full font-semibold hover:bg-[#3a5331] transition-colors shadow-sm cursor-pointer"
             >
               <FiShoppingCart />
-              Add to Cart
+              {addedNotice ? "Added to Bag! ✓" : "Add to Cart"}
             </button>
             <button
-              onClick={() => setWishlisted(!wishlisted)}
-              className="flex items-center justify-center gap-2 border border-gray-200 px-6 py-3.5 rounded-full font-medium text-gray-700 hover:border-[#4a6741] transition-colors"
+              onClick={() =>
+                toggleWishlist({
+                  id: productId,
+                  slug: product.slug,
+                  name: product.name,
+                  price: product.price,
+                  originalPrice: product.originalPrice,
+                  images: product.images || [product.img],
+                  image: product.images?.[0] || product.img,
+                  badge: product.badge,
+                  badgeColor: product.badgeColor,
+                })
+              }
+              className="flex items-center justify-center gap-2 border border-gray-200 px-6 py-3.5 rounded-full font-medium text-gray-700 hover:border-[#4a6741] transition-colors cursor-pointer"
             >
               <FiHeart
                 className={
@@ -354,7 +414,18 @@ export default function ProductDetailPage({ slug }) {
               />
               {wishlisted ? "Wishlisted" : "Wishlist"}
             </button>
-            <button className="flex items-center justify-center gap-2 border border-gray-200 px-5 py-3.5 rounded-full font-medium text-gray-700 hover:border-[#4a6741] transition-colors">
+            <button 
+              onClick={() => {
+                if (navigator.share) {
+                  navigator.share({ title: product.name, url: window.location.href });
+                } else {
+                  navigator.clipboard.writeText(window.location.href);
+                  alert("Link copied to clipboard!");
+                }
+              }}
+              className="flex items-center justify-center gap-2 border border-gray-200 px-5 py-3.5 rounded-full font-medium text-gray-700 hover:border-[#4a6741] transition-colors cursor-pointer"
+              title="Share piece"
+            >
               <FiShare2 />
             </button>
           </div>

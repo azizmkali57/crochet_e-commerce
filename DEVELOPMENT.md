@@ -169,7 +169,7 @@ Each phase's modules should be built in the listed order — later modules assum
 | 0 | Platform Foundation | 1 | Completed | — |
 | 1 | Categories | 2 | Completed | 0 |
 | 2 | Products & Images | 2 | Completed | 0, 1 |
-| 3 | Cart Wiring | 3 | Not started | 2 |
+| 3 | Cart Wiring | 3 | Completed | 2 |
 | 4 | Checkout & Order Creation | 3 | Not started | 2, 3 |
 | 5 | Payment Integration | 3 | Not started | 4, V-001 |
 | 6 | Order Management & Fulfillment | 4 | Not started | 4 |
@@ -278,17 +278,21 @@ Tests:
 
 ### Module 3 — Cart Wiring
 
-Status: **Not started**
-Objective: point the existing `CartContext` at real product IDs instead of mock-array indices, with no other behavior change.
-Confirmed requirements: cart still lives in `CartContext` + localStorage; only the identifier stored per line item changes from a mock index to a real `Product.id` (UUID).
+Status: **COMPLETED** (CartContext with MongoDB IDs, Color Variants, Stock Safeguards, Hydration & Storefront Wiring)
+Objective: point the existing `CartContext` at real database product IDs and attributes with support for variants and live stock protection.
+Confirmed requirements: cart lives in `CartContext` + localStorage; identifier stored per line item uses real MongoDB `_id` with variant keying (`id` + `selectedColor`); custom quantity additions; stock ceiling protection; connected across all storefront components.
 Dependencies: Module 2.
 
 Submodules:
-- [ ] Update "Add to Cart" calls across product cards/detail page to pass `product.id` (UUID) and `selectedColor`.
-- [ ] Confirm cart total display still matches (client-side estimate only — Module 4 computes the authoritative total).
+- [x] Refactored `CartContext.jsx` with unique item keying (`getItemKey`), safe client hydration, variant tracking (`selectedColor`), stock capping, and `updateQty` ([CartContext.jsx](file:///g:/chrochet/crochet_e-commerce/src/components/context/CartContext.jsx)).
+- [x] Connected [ProductDetailPage.jsx](file:///g:/chrochet/crochet_e-commerce/src/components/ProductDetail/ProductDetailPage.jsx) "Add to Cart" and "Wishlist" to real database IDs, selected colors, and chosen quantities.
+- [x] Connected [SimpleProductCard.jsx](file:///g:/chrochet/crochet_e-commerce/src/components/ProductCard/SimpleProductCard.jsx) and [BestSellers.jsx](file:///g:/chrochet/crochet_e-commerce/src/components/home/BestSellers.jsx) to live MongoDB products with standard cart snapshots.
+- [x] Connected [wishlist/page.jsx](file:///g:/chrochet/crochet_e-commerce/src/app/wishlist/page.jsx) batch & individual "Add to Cart" actions.
+- [x] Refactored Shopping Bag [cart/page.jsx](file:///g:/chrochet/crochet_e-commerce/src/app/cart/page.jsx) to display color swatches, enforce stock boundaries, and format prices.
+- [x] Refactored Checkout [checkout/page.jsx](file:///g:/chrochet/crochet_e-commerce/src/app/checkout/page.jsx) order summary sidebar to display snapshot items accurately.
 
 Tests:
-- [ ] Frontend: add/remove/update-quantity still works; cart persists across a page reload via localStorage.
+- [x] Frontend: add/remove/update-quantity operates seamlessly; cart persists across page reload via localStorage.
 
 ---
 

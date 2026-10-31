@@ -548,7 +548,7 @@ export default function CheckoutPage() {
                 {/* Items preview list */}
                 <div className="py-4 space-y-3 max-h-64 overflow-y-auto pr-1 border-b border-sage-light">
                   {cart.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between gap-3">
+                    <div key={item.cartKey || `${item.id}_${item.selectedColor || "default"}`} className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-xl bg-cream overflow-hidden border border-sage-light flex-shrink-0">
                           <img
@@ -559,11 +559,20 @@ export default function CheckoutPage() {
                         </div>
                         <div>
                           <p className="text-xs font-bold text-primary line-clamp-1">{item.name}</p>
-                          <p className="text-[11px] text-muted">Qty: {item.qty} × ₹{item.price}</p>
+                          <div className="flex items-center gap-2 text-[11px] text-muted">
+                            <span>Qty: {item.qty} × ₹{Number(item.price).toLocaleString()}</span>
+                            {item.selectedColor && (
+                              <span
+                                className="w-2.5 h-2.5 rounded-full border border-gray-300 inline-block"
+                                style={{ backgroundColor: item.selectedColor }}
+                                title={item.selectedColor}
+                              />
+                            )}
+                          </div>
                         </div>
                       </div>
                       <p className="text-xs font-bold text-primary">
-                        ₹{(item.price * item.qty).toLocaleString()}
+                        ₹{(Number(item.price) * Number(item.qty)).toLocaleString()}
                       </p>
                     </div>
                   ))}
